@@ -4,7 +4,6 @@ import { UpdateUserDto } from '../dto/create-user.dto';
 import { CreateUserDomainDto } from './dto/create-user.domain.dto';
 import { Name, NameSchema } from './name.schema';
 
-//флаг timestemp автоматичеки добавляет поля upatedAt и createdAt
 
 @Schema({ timestamps: true })
 export class User {

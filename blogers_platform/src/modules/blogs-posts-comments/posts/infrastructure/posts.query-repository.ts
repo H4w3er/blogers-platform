@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaginatedViewDto } from "../../../../core/dto/base.paginated.view-dto";
 import { FilterQuery } from "mongoose";
 import { InjectModel } from '@nestjs/mongoose';
@@ -60,5 +60,18 @@ export class PostsQueryRepository {
       page: query.pageNumber,
       size: query.pageSize,
     });
+  }
+
+  async getByIdOrNotFoundFail(id: string): Promise<PostViewDto> {
+    const post = await this.PostModel.findOne({
+      _id: id,
+      deletedAt: null,
+    });
+
+    if (!post) {
+      throw new NotFoundException('post not found');
+    }
+
+    return PostViewDto.mapToView(post);
   }
 }

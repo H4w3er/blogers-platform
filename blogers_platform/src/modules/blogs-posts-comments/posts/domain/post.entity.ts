@@ -2,6 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Error, HydratedDocument, Model} from 'mongoose';
 import { CreatePostDomainDto } from './dto/create-post.domain.dto';
 import { UpdatePostDto } from '../dto/create-post.dto';
+import { ExtendedLikesInfo, ExtendedLikesInfoSchema } from './post-likers.schema';
 
 
 @Schema({ timestamps: true })
@@ -28,6 +29,9 @@ export class Post {
   @Prop({ type: Date, nullable: true })
   deletedAt: Date | null;
 
+  @Prop({ type: ExtendedLikesInfoSchema })
+  extendedLikesInfo: ExtendedLikesInfo;
+
   static createInstance(dto: CreatePostDomainDto): PostDocument {
     const post = new this();
     post.title = dto.title;
@@ -35,6 +39,18 @@ export class Post {
     post.content = dto.content;
     post.blogId = dto.blogId;
     post.blogName = dto.blogName;
+    post.extendedLikesInfo = {
+      likesCount: dto.extendedLikesInfo.likesCount,
+      dislikesCount: dto.extendedLikesInfo.dislikesCount,
+      myStatus: dto.extendedLikesInfo.myStatus,
+      newestLikes: [
+        {
+          addedAt: dto.extendedLikesInfo.newestLikes[0].addedAt,
+          userId: dto.extendedLikesInfo.newestLikes[0].userId,
+          login: dto.extendedLikesInfo.newestLikes[0].login
+        }
+        ]
+    }
 
     post.deletedAt = null;
     return post as PostDocument;

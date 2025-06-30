@@ -4,4 +4,16 @@ export class CreatePostDomainDto {
   content: string;
   blogId: string;
   blogName: string;
+  extendedLikesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+    myStatus: string;
+    newestLikes: [
+      {
+        addedAt: Date;
+        userId: string;
+        login: string;
+      },
+    ];
+  };
 }

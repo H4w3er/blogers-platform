@@ -5,13 +5,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostModelType } from '../domain/post.entity';
 import { GetPostsQueryParams } from '../api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDto } from '../api/view-dto/posts.view-dto';
-import { LastLikesModelType } from '../domain/last-likes.entity';
+import { LastLikes, LastLikesModelType } from '../domain/last-likes.entity';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name)
     private PostModel: PostModelType,
+    @InjectModel(LastLikes.name)
     private LastLikesModel: LastLikesModelType
   ) {}
 
@@ -52,9 +53,11 @@ export class PostsQueryRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
+    const lastLikes = await this.LastLikesModel.find({}).sort({addedAt: 1}).limit(3).exec()
+
     const totalCount = await this.PostModel.countDocuments(filter);
 
-    const items = posts.map(PostViewDto.mapToView);
+    const items = posts.map(unit => PostViewDto.mapToView(unit, lastLikes));
 
     return PaginatedViewDto.mapToView({
       items,
@@ -74,7 +77,7 @@ export class PostsQueryRepository {
       throw new NotFoundException('post not found');
     }
 
-    const newestLikes = await this.LastLikesModel.find({}).sort({addedAt: 1}).limit(3);
+    const newestLikes = await this.LastLikesModel.find({}).sort({addedAt: 1}).limit(3).exec();
     return PostViewDto.mapToView(post, newestLikes);
   }
 }

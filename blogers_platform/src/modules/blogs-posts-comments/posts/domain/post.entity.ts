@@ -45,9 +45,9 @@ export class Post {
       myStatus: dto.extendedLikesInfo.myStatus,
       newestLikes: [
         {
-          addedAt: dto.extendedLikesInfo.newestLikes[0].addedAt,
-          userId: dto.extendedLikesInfo.newestLikes[0].userId,
-          login: dto.extendedLikesInfo.newestLikes[0].login
+          addedAt: '',
+          userId: '',
+          login: '',
         }
         ]
     }

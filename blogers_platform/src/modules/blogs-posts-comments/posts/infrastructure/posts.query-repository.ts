@@ -5,12 +5,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostModelType } from '../domain/post.entity';
 import { GetPostsQueryParams } from '../api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDto } from '../api/view-dto/posts.view-dto';
+import { LastLikesModelType } from '../domain/last-likes.entity';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name)
-    private PostModel: PostModelType
+    private PostModel: PostModelType,
+    private LastLikesModel: LastLikesModelType
   ) {}
 
   async getAll(
@@ -72,6 +74,7 @@ export class PostsQueryRepository {
       throw new NotFoundException('post not found');
     }
 
-    return PostViewDto.mapToView(post);
+    const newestLikes = await this.LastLikesModel.find({}).sort({addedAt: 1}).limit(3);
+    return PostViewDto.mapToView(post, newestLikes);
   }
 }

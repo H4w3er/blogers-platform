@@ -5,7 +5,6 @@ import { Post, PostModelType } from "../domain/post.entity";
 import { PostsRepository } from "../infrastructure/posts.repository";
 import { BlogsRepository } from "../../blogs/infrastructure/blogs.repository";
 import { BlogDocument } from "../../blogs/domain/blog.entity";
-import { Likes, LikesModelType } from "../../../../core/domain/likes.entity";
 
 @Injectable()
 export class PostsService {
@@ -32,7 +31,7 @@ export class PostsService {
         myStatus: "None",
         newestLikes: [
           {
-            addedAt: new Date(),
+            addedAt: 'none',
             userId: "none",
             login: "none",
           },

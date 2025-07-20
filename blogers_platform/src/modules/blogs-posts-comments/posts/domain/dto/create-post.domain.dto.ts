@@ -10,7 +10,7 @@ export class CreatePostDomainDto {
     myStatus: string;
     newestLikes: [
       {
-        addedAt: Date;
+        addedAt: string;
         userId: string;
         login: string;
       },

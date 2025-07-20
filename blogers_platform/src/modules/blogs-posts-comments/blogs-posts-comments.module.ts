@@ -6,17 +6,17 @@ import { BlogsQueryRepository } from './blogs/infrastructure/blogs.query-reposit
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/domain/blog.entity';
 import { Post, PostSchema } from './posts/domain/post.entity';
-import { Likes, LikesSchema } from '../../core/domain/likes.entity';
 import { PostsController } from './posts/api/posts.controller';
 import { PostsService } from './posts/application/posts.service';
 import { PostsRepository } from './posts/infrastructure/posts.repository';
 import { PostsQueryRepository } from './posts/infrastructure/posts.query-repository';
+import { LastLikes, LastLikesSchema } from './posts/domain/last-likes.entity';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
-    MongooseModule.forFeature([{ name: Likes.name, schema: LikesSchema }]),
+    MongooseModule.forFeature([{ name: LastLikes.name, schema: LastLikesSchema }]),
   ],
   controllers: [BlogsController, PostsController],
   providers: [

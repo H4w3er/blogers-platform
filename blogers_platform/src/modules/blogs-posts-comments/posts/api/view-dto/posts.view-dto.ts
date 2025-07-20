@@ -1,4 +1,5 @@
 import { PostDocument } from "../../domain/post.entity";
+import { LastLikesDocument } from '../../domain/last-likes.entity';
 
 export class PostViewDto {
   id: string;
@@ -12,10 +13,10 @@ export class PostViewDto {
     likesCount: number;
     dislikesCount: number;
     myStatus: string;
-    newestLikes: NewestLikes[]
+    newestLikes: LastLikesDocument[]
   };
 
-  static mapToView(post: PostDocument, newestLikes: Array<NewestLikes>): PostViewDto {
+  static mapToView(post: PostDocument, newestLikes: Array<LastLikesDocument>): PostViewDto {
     const dto = new PostViewDto();
 
     dto.id = post._id.toString();
@@ -34,10 +35,4 @@ export class PostViewDto {
     return dto;
   }
 
-}
-
-class NewestLikes {
-  addedAt: string;
-  id: string;
-  login: string;
 }

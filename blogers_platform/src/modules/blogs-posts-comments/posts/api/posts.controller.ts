@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Get, Post, Query,
+  Controller, Get, Param, Post, Query,
 } from '@nestjs/common';
 import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
@@ -31,12 +31,13 @@ export class PostsController {
     return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
   }
 
-/*
+
   @Get(":id")
-  async getById(@Param("id") id: string): Promise<BlogViewDto> {
-    return this.blogsQueryRepository.getByIdOrNotFoundFail(id);
+  async getById(@Param("id") id: string): Promise<PostViewDto> {
+    return this.postsQueryRepository.getByIdOrNotFoundFail(id);
   }
 
+  /*
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(@Param("id") id: string): Promise<void> {

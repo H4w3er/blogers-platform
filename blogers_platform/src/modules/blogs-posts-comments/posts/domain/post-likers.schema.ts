@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { LastLikesSchema } from './last-likes.entity';
-import { LastLikers } from '../../../../../dist/modules/blogs-posts-comments/posts/domain/post-likers.schema';
+import { LastLikes, LastLikesSchema } from './last-likes.entity';
+
 
 
 
@@ -19,7 +19,7 @@ export class ExtendedLikesInfo {
 
   @Prop({ type: LastLikesSchema })
   newestLikes: [
-    LastLikers
+    LastLikes
   ];
 }
 

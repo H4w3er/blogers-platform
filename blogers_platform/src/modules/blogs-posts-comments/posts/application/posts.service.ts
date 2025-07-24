@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CreatePostDto } from "../dto/create-post.dto";
+import { CreatePostDto, UpdatePostDto } from '../dto/create-post.dto';
 import { InjectModel } from "@nestjs/mongoose";
 import { Post, PostModelType } from "../domain/post.entity";
 import { PostsRepository } from "../infrastructure/posts.repository";
@@ -42,5 +42,19 @@ export class PostsService {
     await this.postsRepository.save(post);
 
     return post._id.toString();
+  }
+
+  async updatePost(id: string, dto: UpdatePostDto){
+    const post = await this.postsRepository.findOrNotFoundFail(id);
+    post.update(dto)
+    await this.postsRepository.save(post)
+  }
+
+  async deletePost(id: string) {
+    const post = await this.postsRepository.findOrNotFoundFail(id);
+
+    post.makeDeleted();
+
+    await this.postsRepository.save(post);
   }
 }

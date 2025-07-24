@@ -2,7 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Error, HydratedDocument, Model} from 'mongoose';
 import { CreatePostDomainDto } from './dto/create-post.domain.dto';
 import { UpdatePostDto } from '../dto/create-post.dto';
-import { ExtendedLikesInfo, ExtendedLikesInfoSchema } from './post-likers.schema';
+import { ExtendedLikesInfo, ExtendedLikesInfoSchema } from './post-likes-info.schema';
 
 
 @Schema({ timestamps: true })
@@ -45,12 +45,12 @@ export class Post {
       myStatus: dto.extendedLikesInfo.myStatus,
       newestLikes: [
         {
-          addedAt: '',
-          userId: '',
-          login: '',
-        }
-        ]
-    }
+          addedAt: "1",
+          userId: "1",
+          login: "1",
+        },
+      ],
+    };
 
     post.deletedAt = null;
     return post as PostDocument;

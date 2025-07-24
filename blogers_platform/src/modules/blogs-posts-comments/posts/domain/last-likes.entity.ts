@@ -5,13 +5,13 @@ import { HydratedDocument, Model } from 'mongoose';
   _id: false,
 })
 export class LastLikes {
-  @Prop({ type: String, required: true, default: 0 })
+  @Prop({ type: String, required: true})
   addedAt: string;
 
-  @Prop({ type: String, required: true, default: 0 })
+  @Prop({ type: String, required: true})
   userId: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true})
   login: string;
 }
 

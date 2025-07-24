@@ -24,7 +24,7 @@ export class PostsRepository {
     const post = await this.findById(id);
 
     if (!post) {
-      throw new NotFoundException("user not found");
+      throw new NotFoundException("post not found");
     }
 
     return post;

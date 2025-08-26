@@ -1,26 +1,43 @@
-import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Error, HydratedDocument, Model } from 'mongoose';
-import { UpdateUserDto } from '../dto/create-user.dto';
-import { CreateUserDomainDto } from './dto/create-user.domain.dto';
-import { Name, NameSchema } from './name.schema';
+import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Error, HydratedDocument, Model } from "mongoose";
+import { UpdateUserDto } from "../dto/create-user.dto";
+import { CreateUserDomainDto } from "./dto/create-user.domain.dto";
+import { Name, NameSchema } from "./name.schema";
+import { BadRequestException } from '@nestjs/common';
 
+export const loginConstraints = {
+  minLength: 3,
+  maxLength: 10,
+};
+
+export const passwordConstraints = {
+  minLength: 6,
+  maxLength: 20,
+};
+
+export const emailConstraints = {
+  match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+};
 
 @Schema({ timestamps: true })
 export class User {
-
-  @Prop({ type: String, required: true })
+  @Prop({
+    type: String,
+    required: true,
+    unique: true,
+    ...loginConstraints,
+  })
   login: string;
 
   @Prop({ type: String, required: true })
   passwordHash: string;
 
-  @Prop({ type: String, min: 5, required: true })
+  @Prop({ type: String, required: true, unique: true,  ...emailConstraints })
   email: string;
 
   @Prop({ type: Boolean, required: true, default: false })
   isEmailConfirmed: boolean;
 
-  // @Prop(NameSchema) this variant from doc doesn't make validation for inner object
   @Prop({ type: NameSchema })
   name: Name;
 
@@ -29,6 +46,12 @@ export class User {
 
   @Prop({ type: Date, nullable: true })
   deletedAt: Date | null;
+
+  @Prop({ type: String })
+  confirmationCode: string;
+
+  @Prop({ type: String })
+  recoveryCode: string;
 
   get id() {
     // @ts-ignore
@@ -40,11 +63,12 @@ export class User {
     user.email = dto.email;
     user.passwordHash = dto.passwordHash;
     user.login = dto.login;
-    user.isEmailConfirmed = false; // пользователь ВСЕГДА должен после регистрации подтверждить свой Email
+    user.isEmailConfirmed = false;
+    user.confirmationCode = "";
 
     user.name = {
-      firstName: 'firstName xxx',
-      lastName: 'lastName yyy',
+      firstName: "firstName xxx",
+      lastName: "lastName yyy",
     };
     user.deletedAt = null;
     return user as UserDocument;
@@ -52,7 +76,7 @@ export class User {
 
   makeDeleted() {
     if (this.deletedAt !== null) {
-      throw new Error('Entity already deleted');
+      throw new Error("Entity already deleted");
     }
     this.deletedAt = new Date();
   }
@@ -63,15 +87,21 @@ export class User {
       this.email = dto.email;
     }
   }
+
+  setConfirmation() {
+    if (this.isEmailConfirmed){
+      throw new BadRequestException({
+        message: ['Email already confirmed']
+      })
+    }
+    this.isEmailConfirmed = true;
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-//регистрирует методы сущности в схеме
 UserSchema.loadClass(User);
 
-//Типизация документа
 export type UserDocument = HydratedDocument<User>;
 
-//Типизация модели + статические методы
 export type UserModelType = Model<UserDocument> & typeof User;

@@ -46,7 +46,6 @@ export class UsersQueryRepository {
         email: { $regex: query.searchEmailTerm, $options: 'i' },
       });
     }
-
     const users = await this.UserModel.find(filter)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())

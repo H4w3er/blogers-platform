@@ -30,7 +30,7 @@ export class Blog {
     blog.name = dto.name;
     blog.description = dto.description;
     blog.websiteUrl = dto.websiteUrl;
-    blog.isMembership = true;
+    blog.isMembership = false;
 
     blog.deletedAt = null;
     return blog as BlogDocument;

@@ -1,6 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class UsersRepository {
@@ -18,14 +19,33 @@ export class UsersRepository {
     await user.save();
   }
 
-  async findOrNotFoundFail(id: string): Promise<UserDocument> {
-    const user = await this.findById(id);
+  async findOrNotFoundFail(id: Types.ObjectId | string): Promise<UserDocument> {
+    const user = await this.findById(id.toString());
 
     if (!user) {
-      //TODO: replace with domain exception
       throw new NotFoundException('user not found');
     }
 
     return user;
+  }
+
+  async findByLogin(login: string): Promise<UserDocument | null> {
+    return this.UserModel.findOne({ login });
+  }
+
+  async loginIsExist(login: string): Promise<boolean> {
+    return !!(await this.UserModel.countDocuments({ login: login }));
+  }
+
+  async findByCode(code: string): Promise<UserDocument | null> {
+    return this.UserModel.findOne({ confirmationCode: code });
+  }
+
+  async findByEmail(email: string): Promise<UserDocument | null> {
+    return this.UserModel.findOne({ email: email });
+  }
+
+  async findByRecoveryCode(recoveryCode: string): Promise<UserDocument | null> {
+    return this.UserModel.findOne({ recoveryCode: recoveryCode });
   }
 }

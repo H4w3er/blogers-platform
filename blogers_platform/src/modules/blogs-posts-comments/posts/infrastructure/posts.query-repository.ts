@@ -1,13 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PaginatedViewDto } from "../../../../core/dto/base.paginated.view-dto";
-import { FilterQuery, Types } from 'mongoose';
+import { FilterQuery } from 'mongoose';
 import { InjectModel } from "@nestjs/mongoose";
 import { Post, PostModelType } from "../domain/post.entity";
 import { GetPostsQueryParams } from "../api/input-dto/get-posts-query-params.input-dto";
 import { PostViewDto } from "../api/view-dto/posts.view-dto";
 import { LastLikes, LastLikesModelType } from "../domain/last-likes.entity";
-import { Blog, BlogModelType } from "../../blogs/domain/blog.entity";
-import { BlogsRepository } from '../../blogs/infrastructure/blogs.repository';
 
 @Injectable()
 export class PostsQueryRepository {

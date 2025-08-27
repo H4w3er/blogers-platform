@@ -43,7 +43,6 @@ export class UsersController {
   @Post()
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewDto> {
     const userId = await this.usersService.createUser(body);
-
     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
   }
 

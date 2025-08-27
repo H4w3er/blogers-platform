@@ -19,6 +19,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const errors = this.formatErrors(exception.getResponse());
+    //console.log(exception);
     const errorResponse: ValidationErrorResponse = {
       errorsMessages: errors,
     };
@@ -28,20 +29,19 @@ export class ValidationExceptionFilter implements ExceptionFilter {
 
   private formatErrors(validationError: any): ValidationErrorType[] {
     const errors: ValidationErrorType[] = [];
+    const seenFields = new Set<string>();
 
-    if (validationError.message.length > 1) {
-      validationError.message.forEach((error) => {
+    validationError.message.forEach((error: string) => {
+      const field = error.split(" ")[0].toLowerCase();
+      if (!seenFields.has(field)) {
+        seenFields.add(field);
         errors.push({
           message: error,
-          field: error.split(" ")[0].toLowerCase(),
+          field: field,
         });
-      });
-    } else {
-      errors.push({
-        message: validationError.message[0],
-        field: validationError.message[0].split(" ")[0].toLowerCase(),
-      });
-    }
+      }
+    });
+
     return errors;
   }
 }

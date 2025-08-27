@@ -1,4 +1,4 @@
-import { IsString, MaxLength} from 'class-validator';
+import { Contains, IsString, MaxLength } from 'class-validator';
 
 export class CreateBlogInputDto {
   @MaxLength(15)
@@ -9,6 +9,7 @@ export class CreateBlogInputDto {
   @IsString()
   description: string;
 
+  @Contains('https')
   @MaxLength(100)
   @IsString()
   websiteUrl: string;

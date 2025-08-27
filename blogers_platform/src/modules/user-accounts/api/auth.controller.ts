@@ -23,7 +23,6 @@ import {
   RegistrationConformationCodeDto,
 } from "./input-dto/auth.input-dto";
 import { Response } from "express";
-import * as http from "node:http";
 
 @Controller("auth")
 export class AuthController {

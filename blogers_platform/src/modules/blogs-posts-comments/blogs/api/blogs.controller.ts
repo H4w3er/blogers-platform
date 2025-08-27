@@ -8,8 +8,8 @@ import {
   Param,
   Post,
   Put,
-  Query,
-} from "@nestjs/common";
+  Query, UseGuards,
+} from '@nestjs/common';
 import { BlogsService } from "../application/blogs.service";
 import { GetBlogsQueryParams } from "./input-dto/get-blogs-query-params.input-dto";
 import { PaginatedViewDto } from "../../../../core/dto/base.paginated.view-dto";
@@ -21,8 +21,11 @@ import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { CreatePostForBlogDto } from '../../posts/dto/create-post.dto';
+import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
+import { Public } from '../../../user-accounts/guards/decorators/public.decorator';
 
 @Controller("blogs")
+@UseGuards(BasicAuthGuard)
 export class BlogsController {
   constructor(
     private blogsService: BlogsService,
@@ -30,6 +33,7 @@ export class BlogsController {
     private postsQueryRepository: PostsQueryRepository,
   ) {}
 
+  @Public()
   @Get()
   async getAll(
     @Query() query: GetBlogsQueryParams,
@@ -43,6 +47,7 @@ export class BlogsController {
     return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
   }
 
+  @Public()
   @Get(":id")
   async getById(@Param("id") id: string): Promise<BlogViewDto> {
     return this.blogsQueryRepository.getByIdOrNotFoundFail(id);
@@ -63,6 +68,7 @@ export class BlogsController {
     return this.blogsService.updateBlog(id, body);
   }
 
+  @Public()
   @Get(":id/posts")
   async getPostsForBlog(
     @Query() query: GetPostsQueryParams,

@@ -8,8 +8,8 @@ import {
   Param,
   Post,
   Put,
-  Query,
-} from "@nestjs/common";
+  Query, UseGuards,
+} from '@nestjs/common';
 import { GetPostsQueryParams } from "./input-dto/get-posts-query-params.input-dto";
 import { PaginatedViewDto } from "../../../../core/dto/base.paginated.view-dto";
 import { PostsQueryRepository } from "../infrastructure/posts.query-repository";
@@ -19,8 +19,11 @@ import { PostsService } from "../application/posts.service";
 import { CommentViewDto } from '../../comments/api/view-dto/comments.view-dto';
 import { CommentsQueryRepository } from '../../comments/infrastructure/comments.query-repository';
 import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
+import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
+import { Public } from '../../../user-accounts/guards/decorators/public.decorator';
 
 @Controller("posts")
+@UseGuards(JwtAuthGuard)
 export class PostsController {
   constructor(
     private postsQueryRepository: PostsQueryRepository,
@@ -28,6 +31,7 @@ export class PostsController {
     private commentsQueryRepository: CommentsQueryRepository
   ) {}
 
+  @Public()
   @Get()
   async getAll(
     @Query() query: GetPostsQueryParams,
@@ -41,6 +45,7 @@ export class PostsController {
     return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
   }
 
+  @Public()
   @Get(":id")
   async getById(@Param("id") id: string): Promise<PostViewDto> {
     return this.postsQueryRepository.getByIdOrNotFoundFail(id);
@@ -61,6 +66,7 @@ export class PostsController {
     return this.postsService.deletePost(id);
   }
 
+  @Public()
   @Get(":id/comments")
   async getCommentsForPost(@Query() query: GetCommentsQueryParams, @Param("id") id: string): Promise<PaginatedViewDto<CommentViewDto[]>> {
     return this.commentsQueryRepository.getAll(query, id);

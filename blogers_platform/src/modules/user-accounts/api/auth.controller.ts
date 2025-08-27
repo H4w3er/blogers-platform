@@ -6,21 +6,24 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Res,
 } from "@nestjs/common";
 import { UsersService } from "../application/users.service";
 import { CreateUserInputDto } from "./input-dto/users.input-dto";
 import { AuthService } from "../application/auth.service";
 import { AuthQueryRepository } from "../infrastructure/auth.query-repository";
-import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
-import { MeViewDto } from './view-dto/users.view-dto';
-import { LocalAuthGuard } from '../guards/local/local-auth.guard';
-import { UserContextDto } from '../guards/dto/user-context.dto';
-import { ExtractUserFromRequest } from '../guards/decorators/param/extract-user-from-request.decorator';
+import { JwtAuthGuard } from "../guards/bearer/jwt-auth.guard";
+import { MeViewDto } from "./view-dto/users.view-dto";
+import { LocalAuthGuard } from "../guards/local/local-auth.guard";
+import { UserContextDto } from "../guards/dto/user-context.dto";
+import { ExtractUserFromRequest } from "../guards/decorators/param/extract-user-from-request.decorator";
 import {
   EmailDto,
   NewPasswordDto,
   RegistrationConformationCodeDto,
-} from './input-dto/auth.input-dto';
+} from "./input-dto/auth.input-dto";
+import { Response } from "express";
+import * as http from "node:http";
 
 @Controller("auth")
 export class AuthController {
@@ -39,10 +42,16 @@ export class AuthController {
   @Post("login")
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
-  login(
+  async login(
+    @Res({ passthrough: true }) response: Response,
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<{ accessToken: string }> {
-    return this.authService.login(user.id);
+    const accessRefreshToken = await this.authService.login(user.id);
+    response.cookie("refreshToken", accessRefreshToken.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    return { accessToken: accessRefreshToken.accessToken };
   }
 
   @Get("me")
@@ -53,7 +62,9 @@ export class AuthController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post("registration-confirmation")
-  registrationConfirmation(@Body() code: RegistrationConformationCodeDto): Promise<void> {
+  registrationConfirmation(
+    @Body() code: RegistrationConformationCodeDto,
+  ): Promise<void> {
     return this.usersService.confirmEmail(code.code);
   }
 

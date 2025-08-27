@@ -33,10 +33,11 @@ export class AuthService {
   }
 
   async login(userId: string) {
-    const accessToken = this.jwtService.sign({ id: userId } as UserContextDto);
-    //console.log(userId);
+    const accessToken = this.jwtService.sign({ id: userId } as UserContextDto, {expiresIn: '5m'});
+    const refreshToken = this.jwtService.sign({ id: userId } as UserContextDto, {expiresIn: '24h'});
     return {
       accessToken,
+      refreshToken,
     };
   }
 }

@@ -5,7 +5,6 @@ import { Types } from 'mongoose';
 
 @Injectable()
 export class UsersRepository {
-  //инжектирование модели через DI
   constructor(@InjectModel(User.name) private UserModel: UserModelType) {}
 
   async findById(id: string): Promise<UserDocument | null> {

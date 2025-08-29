@@ -3,6 +3,8 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Comment, CommentModelType } from '../domain/comment.entity';
 import { CommentsRepository } from '../infrastructure/comments.repository';
 import { CreateCommentDto, UpdateCommentDto } from '../dto/create-comment.dto';
+import { UsersRepository } from '../../../user-accounts/infrastructure/users.repository';
+import { User } from '../../../user-accounts/domain/user.entity';
 
 @Injectable()
 export class CommentsService {
@@ -10,17 +12,19 @@ export class CommentsService {
     @InjectModel(Comment.name)
     private CommentsModel: CommentModelType,
     private commentRepository: CommentsRepository,
+    private usersRepository: UsersRepository,
   ) {}
 
-  async createComment(dto: CreateCommentDto): Promise<string> {
+  async createComment(dto: CreateCommentDto, postId: string, userId: string): Promise<string> {
+    const user = await this.usersRepository.findOrNotFoundFail(userId)
     const comment = this.CommentsModel.createInstance({
       content: dto.content,
       commentatorInfo: {
-        userId: '1',
-        userLogin: 'first'
+        userId: userId,
+        userLogin: user.login
       },
-      createdAt: '12',
-      postId: 'some',
+      createdAt: new Date().toISOString(),
+      postId: postId,
       likesInfo: {
         likesCount: 0,
         dislikesCount: 0,

@@ -16,6 +16,9 @@ import { CommentsService } from './comments/application/comments.service';
 import { CommentsQueryRepository } from './comments/infrastructure/comments.query-repository';
 import { CommentsRepository } from './comments/infrastructure/comments.repository';
 import { CommentsController } from './comments/api/comments.controller';
+import { UsersAccountsModule } from '../user-accounts/users-accounts.module';
+import { UsersRepository } from '../user-accounts/infrastructure/users.repository';
+import { User, UserSchema } from '../user-accounts/domain/user.entity';
 
 @Module({
   imports: [
@@ -23,6 +26,9 @@ import { CommentsController } from './comments/api/comments.controller';
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
     MongooseModule.forFeature([{ name: LastLikes.name, schema: LastLikesSchema }]),
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    UsersAccountsModule,
+
   ],
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [
@@ -35,6 +41,7 @@ import { CommentsController } from './comments/api/comments.controller';
     CommentsService,
     CommentsRepository,
     CommentsQueryRepository,
+    UsersRepository,
   ],
 })
 export class BlogsPostsCommentsModule {}

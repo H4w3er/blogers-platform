@@ -1,12 +1,14 @@
 import { InjectModel } from "@nestjs/mongoose";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Post, PostDocument, PostModelType } from "../domain/post.entity";
+import { LastLikesModelType } from '../domain/last-likes.entity';
 
 @Injectable()
 export class PostsRepository {
   constructor(
     @InjectModel(Post.name)
     private PostModel: PostModelType,
+    private LastLikesModel: LastLikesModelType,
   ) {}
 
   async findById(id: string): Promise<PostDocument | null> {
@@ -28,5 +30,9 @@ export class PostsRepository {
     }
 
     return post;
+  }
+
+  async updatePostLikesCount(postId: string, userId: string, userLogin: string){
+    const likesInfo = await this.LastLikesModel.findOne({})
   }
 }

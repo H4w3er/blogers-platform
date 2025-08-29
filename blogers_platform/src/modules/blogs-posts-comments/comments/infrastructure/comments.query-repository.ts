@@ -51,16 +51,16 @@ export class CommentsQueryRepository {
   }
 
   async getByIdOrNotFoundFail(id: string): Promise<CommentViewDto> {
-    const post = await this.CommentModel.findOne({
+    const comment = await this.CommentModel.findOne({
       _id: id,
       deletedAt: null,
     });
 
-    if (!post) {
+    if (!comment) {
       throw new NotFoundException('comment not found');
     }
 
-    return CommentViewDto.mapToView(post);
+    return CommentViewDto.mapToView(comment);
   }
 
   /*async getCommentsByPostId(id: string, query: GetCommentsQueryParams): Promise<PaginatedViewDto<CommentViewDto[]>>{

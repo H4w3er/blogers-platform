@@ -63,11 +63,8 @@ export class Comment {
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
 
-//регистрирует методы сущности в схеме
 CommentSchema.loadClass(Comment);
 
-//Типизация документа
 export type CommentDocument = HydratedDocument<Comment>;
 
-//Типизация модели + статические методы
 export type CommentModelType = Model<CommentDocument> & typeof Comment;

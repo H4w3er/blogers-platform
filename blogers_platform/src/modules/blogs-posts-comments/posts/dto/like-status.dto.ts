@@ -1,6 +1,7 @@
 import { IsString } from "class-validator";
+import {LikeStatus} from "./update-like-status.dto";
 
-export class LikeStatusDto {
+export class LikeStatusInputDto {
   @IsString()
-  likeStatus: string;
+  likeStatus: LikeStatus;
 }

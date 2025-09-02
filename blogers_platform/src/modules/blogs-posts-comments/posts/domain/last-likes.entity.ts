@@ -13,12 +13,16 @@ export class LastLikes {
   userId: string;
 
   @Prop({ type: String, required: true })
+  postId: string;
+
+  @Prop({ type: String, required: true })
   login: string;
 
   static createInstance(dto: CreateLikesDomainDto): LastLikesDocument {
     const likeInfo = new this();
     likeInfo.addedAt = new Date().toISOString();
     likeInfo.userId = dto.userId;
+    likeInfo.postId = dto.postId;
     likeInfo.login = dto.login;
 
     return likeInfo as LastLikesDocument;

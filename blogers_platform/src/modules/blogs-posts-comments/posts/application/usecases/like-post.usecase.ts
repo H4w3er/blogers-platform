@@ -1,3 +1,4 @@
+/*
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
@@ -9,7 +10,7 @@ export class LikePostCommand {
 }
 
 @CommandHandler(LikePostCommand)
-export class LikePostUseCase
+export class AddLikeUseCase
   implements ICommandHandler<LikePostCommand, Types.ObjectId>
 {
   constructor(
@@ -19,7 +20,6 @@ export class LikePostUseCase
   ) {}
 
   async execute(userId: string, userLogin: string, postId: string): Promise<void> {
-    await this.postsRepository.updatePostLikesCount(postId, userId, userLogin);
-    //await this.likeRepository.addToLastLikers(userId, userLogin, postId);
+    await this.postsRepository.addLikeToPost(postId, userId, userLogin);
   }
-}
+}*/

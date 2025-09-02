@@ -29,7 +29,9 @@ import {
 } from '../../../user-accounts/guards/decorators/param/extract-user-from-request.decorator';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
 import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
-import { LikeStatusDto } from '../dto/like-status.dto';
+import {LikeStatusDto, LikeStatusInputDto} from '../dto/like-status.dto';
+import {CommandBus} from "@nestjs/cqrs";
+import {UpdateLikeStatusCommand, UpdateLikeStatusUseCase} from "../application/usecases/update-like-status.usecase";
 
 @Controller("posts")
 export class PostsController {
@@ -38,6 +40,7 @@ export class PostsController {
     private postsService: PostsService,
     private commentsQueryRepository: CommentsQueryRepository,
     private commentsService: CommentsService,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get()
@@ -102,10 +105,10 @@ export class PostsController {
   @Put(":id/like-status")
   async updateLikeStatus(
     @Param("id") postId: string,
-    @Body() body: LikeStatusDto,
+    @Body() body: LikeStatusInputDto,
     @ExtractUserFromRequest() user: UserContextDto
   ): Promise<> {
-    const like = await this.postsService.likeUnlikePost(body.likeStatus, postId, user.id);
-
+    //const like = await this.postsService.likeUnlikePost(body.likeStatus, postId, user.id);
+    const updateLike = this.commandBus.execute<UpdateLikeStatusCommand>(new UpdateLikeStatusCommand({newLikeStatus: body.likeStatus, userId: user.id, postId: postId}))
   }
 }

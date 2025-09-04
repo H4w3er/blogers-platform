@@ -15,8 +15,7 @@ import { GetBlogsQueryParams } from "./input-dto/get-blogs-query-params.input-dt
 import { PaginatedViewDto } from "../../../../core/dto/base.paginated.view-dto";
 import { BlogsQueryRepository } from "../infrastructure/blogs.query-repository";
 import { BlogViewDto } from "./view-dto/blogs.view-dto";
-import { CreateBlogInputDto } from "./input-dto/blogs.input-dto";
-import { UpdateBlogDto } from "../dto/create-blog.dto";
+import { CreateBlogInputDto, UpdateBlogInputDto } from './input-dto/blogs.input-dto';
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
@@ -63,7 +62,7 @@ export class BlogsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
     @Param("id") id: string,
-    @Body() body: UpdateBlogDto,
+    @Body() body: UpdateBlogInputDto,
   ): Promise<void> {
     return this.blogsService.updateBlog(id, body);
   }

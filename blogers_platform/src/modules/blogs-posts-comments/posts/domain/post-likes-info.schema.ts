@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { LastLikes, LastLikesSchema } from './last-likes.entity';
-import {UserStatuses, UserStatusesSchema} from "./user-statuses.entity";
 
 @Schema({
   _id: false,
@@ -17,9 +16,6 @@ export class ExtendedLikesInfo {
 
   @Prop({ type: [LastLikesSchema] })
   newestLikes: LastLikes[];
-
-  @Prop({ type: [UserStatusesSchema] })
-  usersStatuses: UserStatuses[];
 }
 
 export const ExtendedLikesInfoSchema =

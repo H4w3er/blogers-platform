@@ -1,7 +1,8 @@
-import { IsString } from "class-validator";
+import { IsString, MinLength } from 'class-validator';
 import {LikeStatus} from "./update-like-status.dto";
 
 export class LikeStatusInputDto {
   @IsString()
+  @MinLength(4)
   likeStatus: LikeStatus;
 }

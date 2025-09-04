@@ -22,16 +22,16 @@ import { CommentsQueryRepository } from "../../comments/infrastructure/comments.
 import { GetCommentsQueryParams } from "../../comments/api/input-dto/get-comments-query-params.input-dto";
 import { Public } from "../../../user-accounts/guards/decorators/public.decorator";
 import { BasicAuthGuard } from "../../../user-accounts/guards/basic/basic-auth.guard";
-import { CreateCommentDto } from "../../comments/dto/create-comment.dto";
+import { CreateCommentInputDto } from "../../comments/api/input-dto/create-comment.input-dto";
 import { CommentsService } from "../../comments/application/comments.service";
 import {
   ExtractUserFromRequest
 } from '../../../user-accounts/guards/decorators/param/extract-user-from-request.decorator';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
 import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
-import {LikeStatusDto, LikeStatusInputDto} from '../dto/like-status.dto';
+import {LikeStatusInputDto} from '../dto/like-status.dto';
 import {CommandBus} from "@nestjs/cqrs";
-import {UpdateLikeStatusCommand, UpdateLikeStatusUseCase} from "../application/usecases/update-like-status.usecase";
+import {UpdateLikeStatusCommand} from "../application/usecases/update-like-status.usecase";
 
 @Controller("posts")
 export class PostsController {
@@ -93,7 +93,7 @@ export class PostsController {
   @Post(":id/comments")
   async createCommentForPost(
     @Param("id") postId: string,
-    @Body() body: CreateCommentDto,
+    @Body() body: CreateCommentInputDto,
     @ExtractUserFromRequest() user: UserContextDto
   ): Promise<CommentViewDto> {
     const commentId = await this.commentsService.createComment(body, postId, user.id);
@@ -107,8 +107,7 @@ export class PostsController {
     @Param("id") postId: string,
     @Body() body: LikeStatusInputDto,
     @ExtractUserFromRequest() user: UserContextDto
-  ): Promise<> {
-    //const like = await this.postsService.likeUnlikePost(body.likeStatus, postId, user.id);
-    const updateLike = this.commandBus.execute<UpdateLikeStatusCommand>(new UpdateLikeStatusCommand({newLikeStatus: body.likeStatus, userId: user.id, postId: postId}))
+  ): Promise<void> {
+    await this.commandBus.execute<UpdateLikeStatusCommand>(new UpdateLikeStatusCommand({newLikeStatus: body.likeStatus, userId: user.id, postOrCommentId: postId}))
   }
 }

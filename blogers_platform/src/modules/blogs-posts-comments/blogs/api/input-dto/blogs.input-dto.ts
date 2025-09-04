@@ -14,3 +14,18 @@ export class CreateBlogInputDto {
   @IsString()
   websiteUrl: string;
 }
+
+export class UpdateBlogInputDto {
+  @MaxLength(15)
+  @IsString()
+  name: string;
+
+  @MaxLength(500)
+  @IsString()
+  description: string;
+
+  @Contains('https')
+  @MaxLength(100)
+  @IsString()
+  websiteUrl: string;
+}

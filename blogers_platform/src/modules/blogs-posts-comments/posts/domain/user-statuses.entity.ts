@@ -2,9 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model } from "mongoose";
 import {CreateUserStatusDomainDto} from "./dto/create-likesInfo.domain.dto";
 
-@Schema({
-  _id: false,
-})
+@Schema()
 export class UserStatuses {
   @Prop({ type: String, required: true })
   userId: string;
@@ -26,10 +24,6 @@ export class UserStatuses {
     statusInfo.userStatus = dto.userStatus;
 
     return statusInfo as UserStatusesDocument;
-  }
-
-  checkMyStatus(dto: CreateUserStatusDomainDto){
-
   }
 }
 

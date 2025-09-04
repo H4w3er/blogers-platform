@@ -2,9 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model } from "mongoose";
 import { CreateLikesDomainDto } from "./dto/create-likesInfo.domain.dto";
 
-@Schema({
-  _id: false,
-})
+@Schema()
 export class LastLikes {
   @Prop({ type: String, required: true })
   addedAt: string;

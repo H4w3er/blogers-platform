@@ -32,7 +32,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const seenFields = new Set<string>();
 
     validationError.message.forEach((error: string) => {
-      const field = error.split(" ")[0].toLowerCase();
+      const field = error.split(" ")[0];
       if (!seenFields.has(field)) {
         seenFields.add(field);
         errors.push({

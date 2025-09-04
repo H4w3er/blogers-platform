@@ -2,7 +2,8 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { LikesInfo, LikesInfoSchema } from './comments-likes-info.schema';
 import { CreateCommentDomainDto } from './dto/create-comment.domain.dto';
 import { HydratedDocument, Model } from 'mongoose';
-import { UpdateCommentDto } from '../dto/create-comment.dto';
+import { UpdateCommentDto } from '../dto/update-comment.dto';
+
 
 
 @Schema({ timestamps: true })

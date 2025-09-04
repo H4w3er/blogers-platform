@@ -1,96 +1,155 @@
-import {InjectModel} from "@nestjs/mongoose";
-import {Injectable, NotFoundException} from "@nestjs/common";
-import {Post, PostDocument, PostModelType} from "../domain/post.entity";
-import {LastLikesModelType} from '../domain/last-likes.entity';
-import {UserStatusesModelType} from "../domain/user-statuses.entity";
+import { InjectModel } from "@nestjs/mongoose";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { Post, PostDocument, PostModelType } from "../domain/post.entity";
+import { LastLikes, LastLikesModelType } from "../domain/last-likes.entity";
+import {
+  UserStatuses,
+  UserStatusesModelType,
+} from "../domain/user-statuses.entity";
+import { Comment, CommentModelType } from '../../comments/domain/comment.entity';
 
 @Injectable()
 export class PostsRepository {
-    constructor(
-        @InjectModel(Post.name)
-        private PostModel: PostModelType,
-        private LastLikesModel: LastLikesModelType,
-        private UserStatusesModel: UserStatusesModelType,
-    ) {
+  constructor(
+    @InjectModel(Post.name)
+    private PostModel: PostModelType,
+    @InjectModel(LastLikes.name)
+    private LastLikesModel: LastLikesModelType,
+    @InjectModel(UserStatuses.name)
+    private UserStatusesModel: UserStatusesModelType,
+    @InjectModel(Comment.name)
+    private CommentModel: CommentModelType,
+  ) {}
+
+  async findById(id: string): Promise<PostDocument | null> {
+    return this.PostModel.findOne({
+      _id: id,
+      deletedAt: null,
+    });
+  }
+
+  async save(post: PostDocument) {
+    await post.save();
+  }
+
+  async findOrNotFoundFail(id: string): Promise<PostDocument> {
+    const post = await this.findById(id);
+
+    if (!post) {
+      throw new NotFoundException("post not found");
     }
 
-    async findById(id: string): Promise<PostDocument | null> {
-        return this.PostModel.findOne({
-            _id: id,
-            deletedAt: null,
-        });
+    return post;
+  }
+
+  async createOrChangeUserStatus(
+    postId: string,
+    userId: string,
+    userLogin: string,
+    status: string,
+  ) {
+    const userStatus = await this.UserStatusesModel.findOne({
+      userId: userId,
+      postOrCommentId: postId,
+    });
+    if (!userStatus) {
+      const createdStatus = this.UserStatusesModel.createInstance({
+        userId: userId,
+        postOrCommentId: postId,
+        userLogin: userLogin,
+        userStatus: status,
+      });
+      await createdStatus.save();
+    } else {
+      userStatus.userStatus = status;
+      await userStatus.save();
     }
+  }
 
-    async save(post: PostDocument) {
-        await post.save();
-    }
+  async addLikeToPost(postOrCommentId: string, userId: string, userLogin: string) {
+    const post = await this.PostModel.findOne({ _id: postOrCommentId });
+    const comment = await this.CommentModel.findOne({ _id: postOrCommentId });
+    if (!post && !comment)
+      throw new NotFoundException({
+        message: "not found",
+      });
 
-    async findOrNotFoundFail(id: string): Promise<PostDocument> {
-        const post = await this.findById(id);
+    await this.createOrChangeUserStatus(postOrCommentId, userId, userLogin, "Like");
 
-        if (!post) {
-            throw new NotFoundException("post not found");
-        }
+    const newLastLike = this.LastLikesModel.createInstance({
+      userId: userId,
+      login: userLogin,
+      postId: postOrCommentId,
+    });
+    await newLastLike.save();
 
-        return post;
-    }
+    await this.PostModel.updateOne(
+      { _id: postOrCommentId },
+      { $inc: { "extendedLikesInfo.likesCount": 1 } },
+    );
+  }
 
-    async addLikeToPost(postId: string, userId: string, userLogin: string) {
-        const post = await this.PostModel.findOne({id: postId})
-        if (!post) throw new NotFoundException({
-            message: 'Post not found'
-        })
+  async addDislikeToPost(postOrCommentId: string, userId: string, userLogin: string) {
+    const post = await this.PostModel.findOne({ _id: postOrCommentId });
+    const comment = await this.CommentModel.findOne({ _id: postOrCommentId });
+    if (!post && !comment)
+      throw new NotFoundException({
+        message: "not found",
+      });
 
-        this.LastLikesModel.createInstance({
-            userId: userId,
-            login: userLogin,
-            postId: postId,
-        })
-        const userStatus = this.UserStatusesModel.findOne({userId: userId, postOrCommentId: postId})
-        if (!userStatus) {
-            this.UserStatusesModel.createInstance({
-                userId: userId,
-                postOrCommentId: postId,
-                userLogin: userLogin,
-                userStatus: 'like',
-            })
-        } else {
-            userStatus.userStatus = 'like'
-        }
+    await this.createOrChangeUserStatus(postOrCommentId, userId, userLogin, "Dislike");
 
-        post.addLike()
-        await this.save(post)
-    }
+    await this.PostModel.updateOne(
+      { _id: postOrCommentId },
+      { $inc: { "extendedLikesInfo.dislikesCount": 1 } },
+    );
+  }
 
-    async addDislikeToPost(postId: string) {
-        const post = await this.PostModel.findOne({id: postId})
-        if (!post) throw new NotFoundException({
-            message: 'Post not found'
-        })
+  async removeLikeToPost(postOrCommentId: string, userId: string, userLogin: string) {
+    const post = await this.PostModel.findOne({ _id: postOrCommentId });
+    const comment = await this.CommentModel.findOne({ _id: postOrCommentId });
+    if (!post && !comment)
+      throw new NotFoundException({
+        message: "not found",
+      });
 
-        post.addDislike()
-        await this.save(post)
-    }
+    await this.createOrChangeUserStatus(postOrCommentId, userId, userLogin, "None");
 
-    async removeLikeToPost(postId: string, userId: string, userLogin: string) {
-        const post = await this.PostModel.findOne({id: postId})
-        if (!post) throw new NotFoundException({
-            message: 'Post not found'
-        })
+    this.LastLikesModel.deleteOne({
+      userId: userId,
+      postId: postOrCommentId,
+      userLogin: userLogin,
+    });
 
-        this.LastLikesModel.deleteOne({userId: userId, postId: postId, userLogin: userLogin})
+    await this.PostModel.updateOne(
+      { _id: postOrCommentId },
+      { $inc: { "extendedLikesInfo.likesCount": -1 } },
+    );
+  }
 
-        post.removeLike()
-        await this.save(post)
-    }
+  async removeDislikeToPost(postOrCommentId: string, userId: string, userLogin: string) {
+    const post = await this.PostModel.findOne({ _id: postOrCommentId });
+    const comment = await this.CommentModel.findOne({ _id: postOrCommentId });
+    if (!post && !comment)
+      throw new NotFoundException({
+        message: "not found",
+      });
 
-    async removeDislikeToPost(postId: string) {
-        const post = await this.PostModel.findOne({id: postId})
-        if (!post) throw new NotFoundException({
-            message: 'Post not found'
-        })
+    await this.createOrChangeUserStatus(postOrCommentId, userId, userLogin, "None");
 
-        post.removeDislike()
-        await this.save(post)
-    }
+    await this.PostModel.updateOne(
+      { _id: postOrCommentId },
+      { $inc: { "extendedLikesInfo.dislikesCount": -1 } },
+    );
+  }
+
+  async switchDislikeToLike(postOrCommentId: string, userId: string, userLogin: string) {
+    await this.removeDislikeToPost(postOrCommentId, userId, userLogin);
+    await this.addLikeToPost(postOrCommentId, userId, userLogin);
+  }
+
+  async switchLikeToDislike(postOrCommentId: string, userId: string, userLogin: string) {
+    await this.removeLikeToPost(postOrCommentId, userId, userLogin);
+    await this.addDislikeToPost(postOrCommentId, userId, userLogin);
+  }
 }

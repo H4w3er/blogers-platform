@@ -1,5 +1,5 @@
 import { PostDocument } from "../../domain/post.entity";
-import { LastLikesDocument } from '../../domain/last-likes.entity';
+import { LastLikesDocument } from "../../domain/last-likes.entity";
 
 export class PostViewDto {
   id: string;
@@ -13,12 +13,29 @@ export class PostViewDto {
     likesCount: number;
     dislikesCount: number;
     myStatus: string;
-    newestLikes: LastLikesDocument[]
+    newestLikes: {
+      addedAt: string;
+      userId: string;
+      login: string;
+    }[];
   };
 
-  static mapToView(post: PostDocument, newestLikes: Array<LastLikesDocument>): PostViewDto {
+  static mapToView(
+    post: PostDocument,
+    newestLikes: Array<LastLikesDocument>,
+  ): PostViewDto {
     const dto = new PostViewDto();
-
+    
+    const postLikes = newestLikes
+      .filter(like => like.postId === post._id.toString())
+      .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+      .slice(0, 3)
+      .map(like => ({
+        addedAt: like.addedAt,
+        userId: like.userId,
+        login: like.login
+      }));
+    
     dto.id = post._id.toString();
     dto.title = post.title;
     dto.shortDescription = post.shortDescription;
@@ -30,9 +47,8 @@ export class PostViewDto {
       likesCount: post.extendedLikesInfo.likesCount,
       dislikesCount: post.extendedLikesInfo.dislikesCount,
       myStatus: post.extendedLikesInfo.myStatus,
-      newestLikes: newestLikes
+      newestLikes: postLikes,
     };
     return dto;
   }
-
 }

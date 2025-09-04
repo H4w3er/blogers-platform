@@ -19,6 +19,9 @@ import { CommentsController } from './comments/api/comments.controller';
 import { UsersAccountsModule } from '../user-accounts/users-accounts.module';
 import { UsersRepository } from '../user-accounts/infrastructure/users.repository';
 import { User, UserSchema } from '../user-accounts/domain/user.entity';
+import { UserStatuses, UserStatusesSchema } from './posts/domain/user-statuses.entity';
+import { UpdateLikeStatusUseCase } from './posts/application/usecases/update-like-status.usecase';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
@@ -27,8 +30,10 @@ import { User, UserSchema } from '../user-accounts/domain/user.entity';
     MongooseModule.forFeature([{ name: LastLikes.name, schema: LastLikesSchema }]),
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: UserStatuses.name, schema: UserStatusesSchema }]),
+    MongooseModule.forFeature([{ name: LastLikes.name, schema: LastLikesSchema }]),
     UsersAccountsModule,
-
+    CqrsModule.forRoot()
   ],
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [
@@ -42,6 +47,7 @@ import { User, UserSchema } from '../user-accounts/domain/user.entity';
     CommentsRepository,
     CommentsQueryRepository,
     UsersRepository,
+    UpdateLikeStatusUseCase,
   ],
 })
 export class BlogsPostsCommentsModule {}

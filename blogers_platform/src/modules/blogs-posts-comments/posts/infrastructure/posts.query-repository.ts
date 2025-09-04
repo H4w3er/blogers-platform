@@ -57,14 +57,18 @@ export class PostsQueryRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
-    const lastLikes = await this.LastLikesModel.find({})
-      .sort({ addedAt: 1 })
-      .limit(3)
+    // Get post IDs to fetch relevant likes
+    const postIds = posts.map(post => post._id.toString());
+    
+    const lastLikes = await this.LastLikesModel.find({
+      postId: { $in: postIds }
+    })
+      .sort({ addedAt: -1 })
       .exec();
 
     const totalCount = await this.PostModel.countDocuments(filter);
 
-    const items = posts.map((unit) => PostViewDto.mapToView(unit, lastLikes));
+    const items = posts.map((post) => PostViewDto.mapToView(post, lastLikes));
 
     return PaginatedViewDto.mapToView({
       items,
@@ -84,8 +88,10 @@ export class PostsQueryRepository {
       throw new NotFoundException("post not found");
     }
 
-    const newestLikes = await this.LastLikesModel.find({})
-      .sort({ addedAt: 1 })
+    const newestLikes = await this.LastLikesModel.find({
+      postId: id
+    })
+      .sort({ addedAt: -1 })
       .limit(3)
       .exec();
     return PostViewDto.mapToView(post, newestLikes);

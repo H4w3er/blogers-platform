@@ -51,7 +51,6 @@ export class Post {
           login: "1",
         },
       ],
-      usersStatuses:[]
     };
 
     post.deletedAt = null;
@@ -78,18 +77,6 @@ export class Post {
     if (dto.blogId !== this.blogId) {
       this.blogId = dto.blogId;
     }
-  }
-  addLike(){
-    this.extendedLikesInfo.likesCount = this.extendedLikesInfo.likesCount++
-  }
-  addDislike(){
-    this.extendedLikesInfo.dislikesCount = this.extendedLikesInfo.dislikesCount++
-  }
-  removeLike(){
-    this.extendedLikesInfo.likesCount = this.extendedLikesInfo.likesCount--
-  }
-  removeDislike(){
-    this.extendedLikesInfo.dislikesCount = this.extendedLikesInfo.dislikesCount--
   }
 }
 

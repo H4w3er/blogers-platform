@@ -24,8 +24,6 @@ export class CommentsQueryRepository {
 
     if (postId != '') filter.postId = postId
 
-    console.log(filter);
-
     if (query.searchContentTerm) {
       filter.$or = filter.$or || [];
       filter.$or.push({
@@ -62,34 +60,4 @@ export class CommentsQueryRepository {
 
     return CommentViewDto.mapToView(comment);
   }
-
-  /*async getCommentsByPostId(id: string, query: GetCommentsQueryParams): Promise<PaginatedViewDto<CommentViewDto[]>>{
-    const filter: FilterQuery<Comment> = {
-      postId: id,
-      deletedAt: null,
-    };
-
-    if (query.searchContentTerm) {
-      filter.$or = filter.$or || [];
-      filter.$or.push({
-        name: { $regex: query.searchContentTerm, $options: "i" },
-      });
-    }
-
-    const comments = await this.CommentModel.find(filter)
-      .sort({ [query.sortBy]: query.sortDirection })
-      .skip(query.calculateSkip())
-      .limit(query.pageSize);
-
-    const totalCount = await this.CommentModel.countDocuments(filter);
-
-    const items = comments.map(CommentViewDto.mapToView);
-
-    return PaginatedViewDto.mapToView({
-      items,
-      totalCount,
-      page: query.pageNumber,
-      size: query.pageSize,
-    });
-  }*/
 }

@@ -28,7 +28,7 @@ export class Comment {
   deletedAt: Date | null;
 
   @Prop({ type: LikesInfoSchema })
-  likesInfo: LikesInfo;
+  extendedLikesInfo: LikesInfo;
 
   static createInstance(dto: CreateCommentDomainDto): CommentDocument {
     const comment = new this();
@@ -38,7 +38,7 @@ export class Comment {
       userLogin: dto.commentatorInfo.userLogin
     }
     comment.postId = dto.postId;
-    comment.likesInfo = {
+    comment.extendedLikesInfo = {
       likesCount: dto.likesInfo.likesCount,
       dislikesCount: dto.likesInfo.dislikesCount,
       myStatus: dto.likesInfo.myStatus,

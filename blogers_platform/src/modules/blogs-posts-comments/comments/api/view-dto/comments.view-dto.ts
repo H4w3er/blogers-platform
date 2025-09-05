@@ -1,4 +1,5 @@
 import { CommentDocument } from '../../domain/comment.entity';
+import { UserStatusesDocument } from '../../../posts/domain/user-statuses.entity';
 
 export class CommentViewDto {
   id: string;
@@ -15,8 +16,10 @@ export class CommentViewDto {
     myStatus: string;
   };
 
-  static mapToView(comment: CommentDocument): CommentViewDto {
+  static mapToView(comment: CommentDocument, userStatuses: Array<UserStatusesDocument>): CommentViewDto {
     const dto = new CommentViewDto();
+
+    const statusToCurrentComment = userStatuses.filter(status => status.postOrCommentId == comment._id.toString())
 
     dto.id = comment._id.toString();
     dto.content = comment.content;
@@ -28,7 +31,7 @@ export class CommentViewDto {
     dto.likesInfo = {
       likesCount: comment.extendedLikesInfo.likesCount,
       dislikesCount: comment.extendedLikesInfo.dislikesCount,
-      myStatus: comment.extendedLikesInfo.myStatus,
+      myStatus: statusToCurrentComment[0]?.userStatus ?? 'None',
     };
     return dto;
   }

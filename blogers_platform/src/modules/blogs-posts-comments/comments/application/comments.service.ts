@@ -50,11 +50,11 @@ export class CommentsService {
     } else throw new ForbiddenException()
   }
 
-  async deleteComment(id: string) {
-    const comment = await this.commentRepository.findOrNotFoundFail(id);
-
-    comment.makeDeleted();
-
-    await this.commentRepository.save(comment);
+  async deleteComment(commentId: string, userId: string) {
+    const comment = await this.commentRepository.findOrNotFoundFail(commentId);
+    if (comment.commentatorInfo.userId === userId) {
+      comment.makeDeleted();
+      await this.commentRepository.save(comment);
+    } else throw new ForbiddenException()
   }
 }

@@ -1,5 +1,6 @@
 import { PostDocument } from "../../domain/post.entity";
 import { LastLikesDocument } from "../../domain/last-likes.entity";
+import { UserStatusesDocument } from '../../domain/user-statuses.entity';
 
 export class PostViewDto {
   id: string;
@@ -23,6 +24,7 @@ export class PostViewDto {
   static mapToView(
     post: PostDocument,
     newestLikes: Array<LastLikesDocument>,
+    userStatuses: Array<UserStatusesDocument>,
   ): PostViewDto {
     const dto = new PostViewDto();
     
@@ -35,6 +37,8 @@ export class PostViewDto {
         userId: like.userId,
         login: like.login
       }));
+
+    const statusToCurrentPost = userStatuses.filter(status => status.postOrCommentId == post._id.toString())
     
     dto.id = post._id.toString();
     dto.title = post.title;
@@ -46,7 +50,7 @@ export class PostViewDto {
     dto.extendedLikesInfo = {
       likesCount: post.extendedLikesInfo.likesCount,
       dislikesCount: post.extendedLikesInfo.dislikesCount,
-      myStatus: post.extendedLikesInfo.myStatus,
+      myStatus: statusToCurrentPost[0]?.userStatus ?? 'None',
       newestLikes: postLikes,
     };
     return dto;

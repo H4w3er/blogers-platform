@@ -26,9 +26,9 @@ export class CommentViewDto {
     };
     dto.createdAt = comment.createdAt;
     dto.likesInfo = {
-      likesCount: comment.likesInfo.likesCount,
-      dislikesCount: comment.likesInfo.dislikesCount,
-      myStatus: comment.likesInfo.myStatus,
+      likesCount: comment.extendedLikesInfo.likesCount,
+      dislikesCount: comment.extendedLikesInfo.dislikesCount,
+      myStatus: comment.extendedLikesInfo.myStatus,
     };
     return dto;
   }

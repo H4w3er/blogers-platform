@@ -24,14 +24,14 @@ import { Public } from "../../../user-accounts/guards/decorators/public.decorato
 import { BasicAuthGuard } from "../../../user-accounts/guards/basic/basic-auth.guard";
 import { CreateCommentInputDto } from "../../comments/api/input-dto/create-comment.input-dto";
 import { CommentsService } from "../../comments/application/comments.service";
-import {
-  ExtractUserFromRequest
-} from '../../../user-accounts/guards/decorators/param/extract-user-from-request.decorator';
-import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
-import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
-import {LikeStatusInputDto} from '../dto/like-status.dto';
-import {CommandBus} from "@nestjs/cqrs";
-import {UpdateLikeStatusCommand} from "../application/usecases/update-like-status.usecase";
+import { ExtractUserFromRequest } from "../../../user-accounts/guards/decorators/param/extract-user-from-request.decorator";
+import { UserContextDto } from "../../../user-accounts/guards/dto/user-context.dto";
+import { JwtAuthGuard } from "../../../user-accounts/guards/bearer/jwt-auth.guard";
+import { LikeStatusInputDto } from "../dto/like-status.dto";
+import { CommandBus } from "@nestjs/cqrs";
+import { UpdateLikeStatusCommand } from "../application/usecases/update-like-status.usecase";
+import { JwtOptionalAuthGuard } from "../../../user-accounts/guards/bearer/jwt-optional-auth.guard";
+import { ExtractUserIfExistsFromRequest } from "../../../user-accounts/guards/decorators/param/extract-user-if-exist-from-request.decorator";
 
 @Controller("posts")
 export class PostsController {
@@ -43,13 +43,13 @@ export class PostsController {
     private readonly commandBus: CommandBus,
   ) {}
 
+  @UseGuards(JwtOptionalAuthGuard)
   @Get()
   async getAll(
     @Query() query: GetPostsQueryParams,
-    @ExtractUserFromRequest() user: UserContextDto,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    console.log(user)
-    return this.postsQueryRepository.getAll(query);
+    return this.postsQueryRepository.getAll(query, "", user);
   }
 
   @UseGuards(BasicAuthGuard)
@@ -59,10 +59,14 @@ export class PostsController {
     return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
   }
 
+  @UseGuards(JwtOptionalAuthGuard)
   @Public()
   @Get(":id")
-  async getById(@Param("id") id: string): Promise<PostViewDto> {
-    return this.postsQueryRepository.getByIdOrNotFoundFail(id);
+  async getById(
+    @Param("id") id: string,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto,
+  ): Promise<PostViewDto> {
+    return this.postsQueryRepository.getByIdOrNotFoundFail(id, user);
   }
 
   @UseGuards(BasicAuthGuard)
@@ -82,13 +86,15 @@ export class PostsController {
     return this.postsService.deletePost(id);
   }
 
+  @UseGuards(JwtOptionalAuthGuard)
   @Public()
   @Get(":id/comments")
   async getCommentsForPost(
     @Query() query: GetCommentsQueryParams,
     @Param("id") id: string,
+    @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    return this.commentsQueryRepository.getAll(query, id);
+    return this.commentsQueryRepository.getAll(query, id, user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -96,10 +102,14 @@ export class PostsController {
   async createCommentForPost(
     @Param("id") postId: string,
     @Body() body: CreateCommentInputDto,
-    @ExtractUserFromRequest() user: UserContextDto
+    @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<CommentViewDto> {
-    const commentId = await this.commentsService.createComment(body, postId, user.id);
-    return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId);
+    const commentId = await this.commentsService.createComment(
+      body,
+      postId,
+      user.id,
+    );
+    return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId, user);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -108,8 +118,14 @@ export class PostsController {
   async updateLikeStatus(
     @Param("id") postId: string,
     @Body() body: LikeStatusInputDto,
-    @ExtractUserFromRequest() user: UserContextDto
+    @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<void> {
-    await this.commandBus.execute<UpdateLikeStatusCommand>(new UpdateLikeStatusCommand({newLikeStatus: body.likeStatus, userId: user.id, postOrCommentId: postId}))
+    await this.commandBus.execute<UpdateLikeStatusCommand>(
+      new UpdateLikeStatusCommand({
+        newLikeStatus: body.likeStatus,
+        userId: user.id,
+        postOrCommentId: postId,
+      }),
+    );
   }
 }

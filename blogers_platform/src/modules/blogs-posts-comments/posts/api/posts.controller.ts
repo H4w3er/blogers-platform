@@ -46,7 +46,9 @@ export class PostsController {
   @Get()
   async getAll(
     @Query() query: GetPostsQueryParams,
+    @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    console.log(user)
     return this.postsQueryRepository.getAll(query);
   }
 

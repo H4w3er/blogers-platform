@@ -6,6 +6,8 @@ import { Post, PostModelType } from "../domain/post.entity";
 import { GetPostsQueryParams } from "../api/input-dto/get-posts-query-params.input-dto";
 import { PostViewDto } from "../api/view-dto/posts.view-dto";
 import { LastLikes, LastLikesModelType } from "../domain/last-likes.entity";
+import { UserStatuses, UserStatusesModelType } from '../domain/user-statuses.entity';
+import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -14,12 +16,17 @@ export class PostsQueryRepository {
     private PostModel: PostModelType,
     @InjectModel(LastLikes.name)
     private LastLikesModel: LastLikesModelType,
+    @InjectModel(UserStatuses.name)
+    private UserStatusesModel: UserStatusesModelType,
   ) {}
 
   async getAll(
     query: GetPostsQueryParams,
     blogId: string = "",
+    user: UserContextDto = {id: ''},
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
+
+    const userId = user?.id
 
     const filter: FilterQuery<Post> = {
       deletedAt: null,
@@ -57,7 +64,6 @@ export class PostsQueryRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
-    // Get post IDs to fetch relevant likes
     const postIds = posts.map(post => post._id.toString());
     
     const lastLikes = await this.LastLikesModel.find({
@@ -66,9 +72,15 @@ export class PostsQueryRepository {
       .sort({ addedAt: -1 })
       .exec();
 
+    const userStatuses = await this.UserStatusesModel.find({
+      postOrCommentId: { $in: postIds },
+      userId: userId
+    }).exec()
+
+
     const totalCount = await this.PostModel.countDocuments(filter);
 
-    const items = posts.map((post) => PostViewDto.mapToView(post, lastLikes));
+    const items = posts.map((post) => PostViewDto.mapToView(post, lastLikes, userStatuses));
 
     return PaginatedViewDto.mapToView({
       items,
@@ -78,9 +90,11 @@ export class PostsQueryRepository {
     });
   }
 
-  async getByIdOrNotFoundFail(id: string): Promise<PostViewDto> {
+  async getByIdOrNotFoundFail(postId: string, user: UserContextDto = {id:''}): Promise<PostViewDto> {
+    const userId = user?.id
+
     const post = await this.PostModel.findOne({
-      _id: id,
+      _id: postId,
       deletedAt: null,
     });
 
@@ -89,11 +103,17 @@ export class PostsQueryRepository {
     }
 
     const newestLikes = await this.LastLikesModel.find({
-      postId: id
+      postId: postId
     })
       .sort({ addedAt: -1 })
       .limit(3)
       .exec();
-    return PostViewDto.mapToView(post, newestLikes);
+
+    const userStatus = await this.UserStatusesModel.find({
+      postOrCommentId: postId,
+      userId: userId
+    }).exec()
+
+    return PostViewDto.mapToView(post, newestLikes, userStatus);
   }
 }

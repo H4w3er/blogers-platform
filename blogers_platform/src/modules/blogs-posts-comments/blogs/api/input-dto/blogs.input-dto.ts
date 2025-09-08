@@ -1,8 +1,8 @@
 import { Contains, IsString, MaxLength } from 'class-validator';
+import {IsStringWithTrim} from "../../../../../core/decorators/is-string-with-trim";
 
 export class CreateBlogInputDto {
-  @MaxLength(15)
-  @IsString()
+  @IsStringWithTrim(1, 15)
   name: string;
 
   @MaxLength(500)
@@ -16,8 +16,7 @@ export class CreateBlogInputDto {
 }
 
 export class UpdateBlogInputDto {
-  @MaxLength(15)
-  @IsString()
+  @IsStringWithTrim(1, 15)
   name: string;
 
   @MaxLength(500)

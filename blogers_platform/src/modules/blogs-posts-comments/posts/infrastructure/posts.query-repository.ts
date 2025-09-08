@@ -6,8 +6,8 @@ import { Post, PostModelType } from "../domain/post.entity";
 import { GetPostsQueryParams } from "../api/input-dto/get-posts-query-params.input-dto";
 import { PostViewDto } from "../api/view-dto/posts.view-dto";
 import { LastLikes, LastLikesModelType } from "../domain/last-likes.entity";
-import { UserStatuses, UserStatusesModelType } from '../domain/user-statuses.entity';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
+import {UserStatuses, UserStatusesModelType} from "../../likes/domain/user-statuses.entity";
 
 @Injectable()
 export class PostsQueryRepository {
@@ -74,7 +74,8 @@ export class PostsQueryRepository {
 
     const userStatuses = await this.UserStatusesModel.find({
       postOrCommentId: { $in: postIds },
-      userId: userId
+      userId: userId,
+      isDeleted: false,
     }).exec()
 
 

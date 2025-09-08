@@ -1,5 +1,5 @@
 import { CommentDocument } from '../../domain/comment.entity';
-import { UserStatusesDocument } from '../../../posts/domain/user-statuses.entity';
+import {UserStatusesDocument} from "../../../likes/domain/user-statuses.entity";
 
 export class CommentViewDto {
   id: string;

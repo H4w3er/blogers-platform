@@ -20,9 +20,12 @@ import { JwtAuthGuard } from "../../../user-accounts/guards/bearer/jwt-auth.guar
 import { ExtractUserFromRequest } from "../../../user-accounts/guards/decorators/param/extract-user-from-request.decorator";
 import { UserContextDto } from "../../../user-accounts/guards/dto/user-context.dto";
 import { LikeStatusInputDto } from "../../posts/dto/like-status.dto";
-import { UpdateLikeStatusCommand } from "../../posts/application/usecases/update-like-status.usecase";
 import { CommandBus } from "@nestjs/cqrs";
 import { JwtOptionalAuthGuard } from "../../../user-accounts/guards/bearer/jwt-optional-auth.guard";
+import {UpdateLikeStatusCommand} from "../../likes/usecases/update-like-status.usecase";
+import {
+  ExtractUserIfExistsFromRequest
+} from "../../../user-accounts/guards/decorators/param/extract-user-if-exist-from-request.decorator";
 
 @Controller("comments")
 export class CommentsController {
@@ -32,11 +35,13 @@ export class CommentsController {
     private readonly commandBus: CommandBus,
   ) {}
 
+  @UseGuards(JwtOptionalAuthGuard)
   @Get()
   async getAll(
     @Query() query: GetCommentsQueryParams,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    return this.commentsQueryRepository.getAll(query);
+    return this.commentsQueryRepository.getAll(query, '', user);
   }
 
   @UseGuards(JwtOptionalAuthGuard)

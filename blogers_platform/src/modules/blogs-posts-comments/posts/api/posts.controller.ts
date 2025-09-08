@@ -15,7 +15,7 @@ import { GetPostsQueryParams } from "./input-dto/get-posts-query-params.input-dt
 import { PaginatedViewDto } from "../../../../core/dto/base.paginated.view-dto";
 import { PostsQueryRepository } from "../infrastructure/posts.query-repository";
 import { PostViewDto } from "./view-dto/posts.view-dto";
-import { CreatePostDto, UpdatePostDto } from "../dto/create-post.dto";
+import { CreatePostDto, UpdatePostDto } from "./input-dto/create-post.dto";
 import { PostsService } from "../application/posts.service";
 import { CommentViewDto } from "../../comments/api/view-dto/comments.view-dto";
 import { CommentsQueryRepository } from "../../comments/infrastructure/comments.query-repository";
@@ -29,9 +29,9 @@ import { UserContextDto } from "../../../user-accounts/guards/dto/user-context.d
 import { JwtAuthGuard } from "../../../user-accounts/guards/bearer/jwt-auth.guard";
 import { LikeStatusInputDto } from "../dto/like-status.dto";
 import { CommandBus } from "@nestjs/cqrs";
-import { UpdateLikeStatusCommand } from "../application/usecases/update-like-status.usecase";
 import { JwtOptionalAuthGuard } from "../../../user-accounts/guards/bearer/jwt-optional-auth.guard";
 import { ExtractUserIfExistsFromRequest } from "../../../user-accounts/guards/decorators/param/extract-user-if-exist-from-request.decorator";
+import {UpdateLikeStatusCommand} from "../../likes/usecases/update-like-status.usecase";
 
 @Controller("posts")
 export class PostsController {

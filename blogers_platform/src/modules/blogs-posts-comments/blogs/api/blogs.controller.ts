@@ -19,7 +19,7 @@ import { CreateBlogInputDto, UpdateBlogInputDto } from './input-dto/blogs.input-
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
-import { CreatePostForBlogDto } from '../../posts/dto/create-post.dto';
+import { CreatePostForBlogDto } from '../../posts/api/input-dto/create-post.dto';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
 import { Public } from '../../../user-accounts/guards/decorators/public.decorator';
 

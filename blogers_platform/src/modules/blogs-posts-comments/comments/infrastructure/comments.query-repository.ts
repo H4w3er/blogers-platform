@@ -5,8 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Comment, CommentModelType } from '../domain/comment.entity';
 import { GetCommentsQueryParams } from '../api/input-dto/get-comments-query-params.input-dto';
 import { CommentViewDto } from '../api/view-dto/comments.view-dto';
-import { UserStatuses, UserStatusesModelType } from '../../posts/domain/user-statuses.entity';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
+import {UserStatuses, UserStatusesModelType} from "../../likes/domain/user-statuses.entity";
 
 @Injectable()
 export class CommentsQueryRepository {

@@ -19,9 +19,10 @@ import { CommentsController } from './comments/api/comments.controller';
 import { UsersAccountsModule } from '../user-accounts/users-accounts.module';
 import { UsersRepository } from '../user-accounts/infrastructure/users.repository';
 import { User, UserSchema } from '../user-accounts/domain/user.entity';
-import { UserStatuses, UserStatusesSchema } from './posts/domain/user-statuses.entity';
-import { UpdateLikeStatusUseCase } from './posts/application/usecases/update-like-status.usecase';
 import { CqrsModule } from '@nestjs/cqrs';
+import {UserStatuses, UserStatusesSchema} from "./likes/domain/user-statuses.entity";
+import {UpdateLikeStatusUseCase} from "./likes/usecases/update-like-status.usecase";
+import {LikesRepository} from "./likes/infrastructure/likes.repository";
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { CqrsModule } from '@nestjs/cqrs';
     CommentsQueryRepository,
     UsersRepository,
     UpdateLikeStatusUseCase,
+    LikesRepository,
   ],
 })
 export class BlogsPostsCommentsModule {}

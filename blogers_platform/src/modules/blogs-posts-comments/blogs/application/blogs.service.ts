@@ -6,7 +6,7 @@ import { CreateBlogDto, UpdateBlogDto } from "../dto/create-blog.dto";
 import {
   CreatePostDto,
   CreatePostForBlogDto,
-} from "../../posts/dto/create-post.dto";
+} from "../../posts/api/input-dto/create-post.dto";
 import { PostsService } from "../../posts/application/posts.service";
 
 @Injectable()

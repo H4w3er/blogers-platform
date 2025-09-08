@@ -1,6 +1,6 @@
 import { PostDocument } from "../../domain/post.entity";
 import { LastLikesDocument } from "../../domain/last-likes.entity";
-import { UserStatusesDocument } from '../../domain/user-statuses.entity';
+import {UserStatusesDocument} from "../../../likes/domain/user-statuses.entity";
 
 export class PostViewDto {
   id: string;

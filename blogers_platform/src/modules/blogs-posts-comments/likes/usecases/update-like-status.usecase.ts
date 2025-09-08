@@ -1,15 +1,13 @@
-import { PostsRepository } from '../../infrastructure/posts.repository';
-import { LikeStatusUpdateDto } from '../../dto/update-like-status.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserStatuses, UserStatusesModelType } from '../../domain/user-statuses.entity';
-import {
-  User,
-  UserModelType,
-} from '../../../../user-accounts/domain/user.entity';
+import { UserStatuses, UserStatusesModelType } from '../domain/user-statuses.entity';
 import { NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostModelType } from '../../domain/post.entity';
-import { Comment, CommentModelType } from '../../../comments/domain/comment.entity';
+import {LikeStatusUpdateDto} from "../dto/update-like-status.dto";
+import {User, UserModelType} from "../../../user-accounts/domain/user.entity";
+import {LikesRepository} from "../infrastructure/likes.repository";
+import {Post, PostModelType} from "../../posts/domain/post.entity";
+import {Comment, CommentModelType} from "../../comments/domain/comment.entity";
+
 
 export class UpdateLikeStatusCommand {
   constructor(public dto: LikeStatusUpdateDto) {
@@ -22,7 +20,7 @@ export class UpdateLikeStatusUseCase
   constructor(
     @InjectModel(User.name)
     private UserModel: UserModelType,
-    private postsRepository: PostsRepository,
+    private likesRepository: LikesRepository,
     @InjectModel(UserStatuses.name)
     private UserStatusesModel: UserStatusesModelType,
     @InjectModel(Post.name)
@@ -71,15 +69,15 @@ export class UpdateLikeStatusUseCase
     const operationKey = `${oldStatus}-${newStatus}`;
     const operations: Record<string, () => Promise<void>> = {
       'None-Like': () =>
-        this.postsRepository.addLikeToPost(postOrCommentId, userId, userLogin),
-      'None-Dislike': () => this.postsRepository.addDislikeToPost(postOrCommentId, userId, userLogin),
+        this.likesRepository.addLikeToEntity(postOrCommentId, userId, userLogin),
+      'None-Dislike': () => this.likesRepository.addDislikeToEntity(postOrCommentId, userId, userLogin),
       'Like-None': () =>
-        this.postsRepository.removeLikeToPost(postOrCommentId, userId, userLogin),
-      'Dislike-None': () => this.postsRepository.removeDislikeToPost(postOrCommentId, userId, userLogin),
+        this.likesRepository.removeLikeToEntity(postOrCommentId, userId, userLogin),
+      'Dislike-None': () => this.likesRepository.removeDislikeToEntity(postOrCommentId, userId, userLogin),
       'Dislike-Like': () =>
-        this.postsRepository.switchDislikeToLike(postOrCommentId, userId, userLogin),
+        this.likesRepository.switchDislikeToLike(postOrCommentId, userId, userLogin),
       'Like-Dislike': () =>
-        this.postsRepository.switchLikeToDislike(postOrCommentId, userId, userLogin),
+        this.likesRepository.switchLikeToDislike(postOrCommentId, userId, userLogin),
     };
 
     const operation = operations[operationKey];

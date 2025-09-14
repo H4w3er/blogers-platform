@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from "@nestjs/mongoose";
 import { Comment, CommentModelType } from "../domain/comment.entity";
 import { CommentsRepository } from "../infrastructure/comments.repository";
@@ -6,6 +6,7 @@ import { CommentsRepository } from "../infrastructure/comments.repository";
 import { UsersRepository } from "../../../user-accounts/infrastructure/users.repository";
 import { CreateCommentInputDto } from "../api/input-dto/create-comment.input-dto";
 import { UpdateCommentDto } from "../dto/update-comment.dto";
+import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';
 
 @Injectable()
 export class CommentsService {
@@ -14,6 +15,7 @@ export class CommentsService {
     private CommentsModel: CommentModelType,
     private commentRepository: CommentsRepository,
     private usersRepository: UsersRepository,
+    private postsQueryRepository: PostsQueryRepository,
   ) {}
 
   async createComment(
@@ -22,6 +24,9 @@ export class CommentsService {
     userId: string,
   ): Promise<string> {
     const user = await this.usersRepository.findOrNotFoundFail(userId);
+    const post = await this.postsQueryRepository.getByIdOrNotFoundFail(postId);
+    if (!post) throw new  NotFoundException()
+
     const comment = this.CommentsModel.createInstance({
       content: dto.content,
       commentatorInfo: {

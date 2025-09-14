@@ -3,7 +3,6 @@ import { Error, HydratedDocument, Model} from 'mongoose';
 import { CreatePostDomainDto } from './dto/create-post.domain.dto';
 import { UpdatePostDto } from '../api/input-dto/create-post.dto';
 import { ExtendedLikesInfo, ExtendedLikesInfoSchema } from './post-likes-info.schema';
-import {LastLikes} from "./last-likes.entity";
 
 
 @Schema({ timestamps: true })
@@ -44,11 +43,7 @@ export class Post {
       likesCount: dto.extendedLikesInfo.likesCount,
       dislikesCount: dto.extendedLikesInfo.dislikesCount,
       myStatus: dto.extendedLikesInfo.myStatus,
-      newestLikes: [
-        {
-          LastLikes
-        },
-      ],
+      newestLikes: []
     };
 
     post.deletedAt = null;

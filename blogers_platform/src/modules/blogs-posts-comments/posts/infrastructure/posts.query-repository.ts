@@ -1,13 +1,16 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PaginatedViewDto } from "../../../../core/dto/base.paginated.view-dto";
-import { FilterQuery } from 'mongoose';
+import { FilterQuery } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { Post, PostModelType } from "../domain/post.entity";
 import { GetPostsQueryParams } from "../api/input-dto/get-posts-query-params.input-dto";
 import { PostViewDto } from "../api/view-dto/posts.view-dto";
 import { LastLikes, LastLikesModelType } from "../domain/last-likes.entity";
-import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
-import {UserStatuses, UserStatusesModelType} from "../../likes/domain/user-statuses.entity";
+import { UserContextDto } from "../../../user-accounts/guards/dto/user-context.dto";
+import {
+  UserStatuses,
+  UserStatusesModelType,
+} from "../../likes/domain/user-statuses.entity";
 
 @Injectable()
 export class PostsQueryRepository {
@@ -23,10 +26,9 @@ export class PostsQueryRepository {
   async getAll(
     query: GetPostsQueryParams,
     blogId: string = "",
-    user: UserContextDto = {id: ''},
+    user: UserContextDto = { id: "" },
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-
-    const userId = user?.id
+    const userId = user?.id;
 
     const filter: FilterQuery<Post> = {
       deletedAt: null,
@@ -64,10 +66,11 @@ export class PostsQueryRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
-    const postIds = posts.map(post => post._id.toString());
-    
+    const postIds = posts.map((post) => post._id.toString());
+
     const lastLikes = await this.LastLikesModel.find({
-      postId: { $in: postIds }
+      postId: { $in: postIds },
+      isDeleted: false,
     })
       .sort({ addedAt: -1 })
       .exec();
@@ -75,13 +78,13 @@ export class PostsQueryRepository {
     const userStatuses = await this.UserStatusesModel.find({
       postOrCommentId: { $in: postIds },
       userId: userId,
-      isDeleted: false,
-    }).exec()
-
+    }).exec();
 
     const totalCount = await this.PostModel.countDocuments(filter);
 
-    const items = posts.map((post) => PostViewDto.mapToView(post, lastLikes, userStatuses));
+    const items = posts.map((post) =>
+      PostViewDto.mapToView(post, lastLikes, userStatuses),
+    );
 
     return PaginatedViewDto.mapToView({
       items,
@@ -91,8 +94,11 @@ export class PostsQueryRepository {
     });
   }
 
-  async getByIdOrNotFoundFail(postId: string, user: UserContextDto = {id:''}): Promise<PostViewDto> {
-    const userId = user?.id
+  async getByIdOrNotFoundFail(
+    postId: string,
+    user: UserContextDto = { id: "" },
+  ): Promise<PostViewDto> {
+    const userId = user?.id;
 
     const post = await this.PostModel.findOne({
       _id: postId,
@@ -104,7 +110,8 @@ export class PostsQueryRepository {
     }
 
     const newestLikes = await this.LastLikesModel.find({
-      postId: postId
+      postId: postId,
+      isDeleted: false,
     })
       .sort({ addedAt: -1 })
       .limit(3)
@@ -112,8 +119,8 @@ export class PostsQueryRepository {
 
     const userStatus = await this.UserStatusesModel.find({
       postOrCommentId: postId,
-      userId: userId
-    }).exec()
+      userId: userId,
+    }).exec();
 
     return PostViewDto.mapToView(post, newestLikes, userStatus);
   }

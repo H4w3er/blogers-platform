@@ -96,6 +96,15 @@ export class User {
     }
     this.isEmailConfirmed = true;
   }
+
+  setConfirmationCode(conformationCode: string) {
+    if (this.isEmailConfirmed){
+      throw new BadRequestException({
+        message: ['Email already confirmed']
+      })
+    }
+    this.confirmationCode = conformationCode;
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

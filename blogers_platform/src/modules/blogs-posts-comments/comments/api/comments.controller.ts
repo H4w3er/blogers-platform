@@ -48,7 +48,7 @@ export class CommentsController {
   @Get(":id")
   async getById(
     @Param("id") id: string,
-    @ExtractUserFromRequest() user: UserContextDto,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto,
   ): Promise<CommentViewDto> {
     return this.commentsQueryRepository.getByIdOrNotFoundFail(id, user);
   }
@@ -83,7 +83,7 @@ export class CommentsController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
-  @Delete()
+  @Delete(":id")
   async deleteCommentById(
     @Param("id") commentId: string,
     @ExtractUserFromRequest() user: UserContextDto,

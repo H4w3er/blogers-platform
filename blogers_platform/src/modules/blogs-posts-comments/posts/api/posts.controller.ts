@@ -92,9 +92,10 @@ export class PostsController {
   async getCommentsForPost(
     @Query() query: GetCommentsQueryParams,
     @Param("id") id: string,
-    @ExtractUserFromRequest() user: UserContextDto,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    return this.commentsQueryRepository.getAll(query, id, user);
+    const post = await this.postsQueryRepository.getByIdOrNotFoundFail(id)
+    return this.commentsQueryRepository.getAll(query, post.id, user);
   }
 
   @UseGuards(JwtAuthGuard)

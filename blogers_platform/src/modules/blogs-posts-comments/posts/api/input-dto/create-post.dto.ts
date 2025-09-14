@@ -5,12 +5,10 @@ export class CreatePostDto {
   @IsStringWithTrim(1, 30)
   title: string;
 
-  @MaxLength(100)
-  @IsString()
+  @IsStringWithTrim(1, 100)
   shortDescription: string;
 
-  @MaxLength(1000)
-  @IsString()
+  @IsStringWithTrim(1, 1000)
   content: string;
 
   @IsString()
@@ -18,30 +16,24 @@ export class CreatePostDto {
 }
 
 export class CreatePostForBlogDto {
-  @MaxLength(30)
-  @IsString()
+  @IsStringWithTrim(1, 30)
   title: string;
 
-  @MaxLength(100)
-  @IsString()
+  @IsStringWithTrim(1, 100)
   shortDescription: string;
 
-  @MaxLength(1000)
-  @IsString()
+  @IsStringWithTrim(1, 1000)
   content: string;
 }
 
 export class UpdatePostDto {
-  @MaxLength(30)
-  @IsString()
+  @IsStringWithTrim(1, 30)
   title: string;
 
-  @MaxLength(100)
-  @IsString()
+  @IsStringWithTrim(1, 100)
   shortDescription: string;
 
-  @MaxLength(1000)
-  @IsString()
+  @IsStringWithTrim(1, 1000)
   content: string;
 
   @IsString()

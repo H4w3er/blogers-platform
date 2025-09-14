@@ -23,6 +23,10 @@ import {
   RegistrationConformationCodeDto,
 } from "./input-dto/auth.input-dto";
 import { Response } from "express";
+import { CommandBus } from '@nestjs/cqrs';
+import { RegisterUserCommand } from '../application/usecases/register-user.usecase';
+import { LoginUserCommand } from '../application/usecases/login-user.usecase';
+import { Cookies } from '../guards/decorators/param/extract-cookies-from-request.decorator';
 
 @Controller("auth")
 export class AuthController {
@@ -30,12 +34,13 @@ export class AuthController {
     private usersService: UsersService,
     private authService: AuthService,
     private authQueryRepository: AuthQueryRepository,
+    private commandBus: CommandBus,
   ) {}
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post("registration")
   registration(@Body() body: CreateUserInputDto): Promise<void> {
-    return this.usersService.registerUser(body);
+    return this.commandBus.execute(new RegisterUserCommand(body));
   }
 
   @Post("login")
@@ -45,7 +50,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<{ accessToken: string }> {
-    const accessRefreshToken = await this.authService.login(user.id);
+    const accessRefreshToken = await this.commandBus.execute(new LoginUserCommand(user));
     response.cookie("refreshToken", accessRefreshToken.refreshToken, {
       httpOnly: true,
       secure: true,
@@ -83,5 +88,12 @@ export class AuthController {
   @Post("registration-email-resending")
   registrationResending(@Body() dto: EmailDto): Promise<void> {
     return this.usersService.emailResending(dto.email);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post("refresh-token")
+  refreshToken(@Cookies('refreshToken') refreshToken: string): string {
+    console.log(refreshToken);
+    return ''
   }
 }

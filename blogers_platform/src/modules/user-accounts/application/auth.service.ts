@@ -31,13 +31,4 @@ export class AuthService {
 
     return { id: user.id.toString() };
   }
-
-  async login(userId: string) {
-    const accessToken = this.jwtService.sign({ id: userId } as UserContextDto, {expiresIn: '5m'});
-    const refreshToken = this.jwtService.sign({ id: userId } as UserContextDto, {expiresIn: '24h'});
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
 }

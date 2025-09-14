@@ -14,6 +14,14 @@ import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { UsersExternalService } from './application/users-external.service';
 import { AuthController } from './api/auth.controller';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { CreateUserUseCase } from './application/usecases/create-user.usecase';
+import { UsersFactory } from './application/factories/users.factory';
+import { RegisterUserUseCase } from './application/usecases/register-user.usecase';
+import { CqrsModule } from '@nestjs/cqrs';
+import {
+  SendConfirmationEmailWhenUserRegisteredEventHandler
+} from '../notifications/send-conformation-email-when-user-registered.event-handler';
+import { LoginUserUseCase } from './application/usecases/login-user.usecase';
 
 @Module({
   imports: [
@@ -22,7 +30,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
       secret: 'access-token-secret',
       signOptions: { expiresIn: '5m' },
     }),
-    NotificationsModule
+    NotificationsModule,
+    CqrsModule.forRoot()
   ],
   controllers: [UsersController, AuthController],
   providers: [
@@ -35,6 +44,11 @@ import { NotificationsModule } from '../notifications/notifications.module';
     CryptoService,
     JwtStrategy,
     UsersExternalService,
+    CreateUserUseCase,
+    UsersFactory,
+    RegisterUserUseCase,
+    SendConfirmationEmailWhenUserRegisteredEventHandler,
+    LoginUserUseCase
   ],
   exports: [JwtStrategy, UsersExternalService],
 })

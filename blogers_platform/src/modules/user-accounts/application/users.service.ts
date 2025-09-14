@@ -25,42 +25,6 @@ export class UsersService {
     private emailService: EmailService,
   ) {}
 
-  async createUser(dto: CreateUserDto): Promise<string> {
-    const userWithTheSameLogin = await this.usersRepository.findByLogin(
-      dto.login,
-    );
-    if (!!userWithTheSameLogin) {
-      throw new BadRequestException({
-        code: 400,
-        message: ["Login is not unique"],
-      });
-    }
-
-    const userWithTheSameEmail = await this.usersRepository.findByEmail(
-      dto.email,
-    );
-    if (!!userWithTheSameEmail) {
-      throw new BadRequestException({
-        code: 400,
-        message: ["Email is not unique"],
-      });
-    }
-
-    const passwordHash = await this.cryptoService.createPasswordHash(
-      dto.password,
-    );
-
-    const user = this.UserModel.createInstance({
-      email: dto.email,
-      login: dto.login,
-      passwordHash: passwordHash,
-    });
-
-    await this.usersRepository.save(user);
-
-    return user._id.toString();
-  }
-
   async updateUser(id: string, dto: UpdateUserDto): Promise<string> {
     const user = await this.usersRepository.findOrNotFoundFail(id);
 
@@ -69,30 +33,6 @@ export class UsersService {
     await this.usersRepository.save(user);
 
     return user._id.toString();
-  }
-
-  async deleteUser(id: string) {
-    const user = await this.usersRepository.findOrNotFoundFail(id);
-
-    user.makeDeleted();
-
-    await this.usersRepository.save(user);
-  }
-
-  async registerUser(dto: CreateUserInputDto) {
-    const createdUserId = await this.createUser(dto);
-
-    const confirmCode = uuidv4();
-    const user = await this.usersRepository.findOrNotFoundFail(
-      new Types.ObjectId(createdUserId),
-    );
-
-    user.confirmationCode = confirmCode;
-    await this.usersRepository.save(user);
-
-    this.emailService
-      .sendConfirmationEmail(user.email, confirmCode)
-      .catch(console.error);
   }
 
   async confirmEmail(code: string) {

@@ -158,8 +158,8 @@ export class LikesRepository {
         await this.createOrChangeUserStatus(postOrCommentId, userId, userLogin, "None");
 
         const lastLikes = await this.findById(userId, postOrCommentId)
-        console.log(lastLikes);
-        console.log(await this.LastLikesModel.find({}));
+        lastLikes?.makeDeleted()
+        lastLikes?.save()
 
         await this.addOrRemoveLikeDislikeOnEntity(comment, post, postOrCommentId, 'removeLike')
     }

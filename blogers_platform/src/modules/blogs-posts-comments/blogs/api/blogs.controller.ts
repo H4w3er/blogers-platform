@@ -22,6 +22,11 @@ import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-p
 import { CreatePostForBlogDto } from '../../posts/api/input-dto/create-post.dto';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
 import { Public } from '../../../user-accounts/guards/decorators/public.decorator';
+import {
+  ExtractUserIfExistsFromRequest
+} from '../../../user-accounts/guards/decorators/param/extract-user-if-exist-from-request.decorator';
+import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
+import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-optional-auth.guard';
 
 @Controller("blogs")
 @UseGuards(BasicAuthGuard)
@@ -67,14 +72,16 @@ export class BlogsController {
     return this.blogsService.updateBlog(id, body);
   }
 
+  @UseGuards(JwtOptionalAuthGuard)
   @Public()
   @Get(":id/posts")
   async getPostsForBlog(
     @Query() query: GetPostsQueryParams,
     @Param("id") id: string,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     await this.blogsService.findOrNotFindFail(id);
-    return this.postsQueryRepository.getAll(query, id);
+    return this.postsQueryRepository.getAll(query, id, user);
   }
 
   @Post(":id/posts")

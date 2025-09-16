@@ -24,7 +24,10 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
         id: dto.id,
         deviceId: "deviceId",
       } as UserContextDto,
-      { expiresIn: "24h" },
+      { 
+        expiresIn: "24h",
+        secret: 'refresh-token-secret'
+      },
     );
     return {
       accessToken,

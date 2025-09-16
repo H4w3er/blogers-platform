@@ -19,7 +19,6 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const errors = this.formatErrors(exception.getResponse());
-    //console.log(exception);
     const errorResponse: ValidationErrorResponse = {
       errorsMessages: errors,
     };

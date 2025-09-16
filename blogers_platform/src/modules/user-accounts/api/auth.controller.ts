@@ -13,6 +13,7 @@ import { CreateUserInputDto } from "./input-dto/users.input-dto";
 import { AuthService } from "../application/auth.service";
 import { AuthQueryRepository } from "../infrastructure/auth.query-repository";
 import { JwtAuthGuard } from "../guards/bearer/jwt-auth.guard";
+import { JwtRefreshAuthGuard } from "../guards/bearer/jwt-refresh-auth.guard";
 import { MeViewDto } from "./view-dto/users.view-dto";
 import { LocalAuthGuard } from "../guards/local/local-auth.guard";
 import { UserContextDto } from "../guards/dto/user-context.dto";
@@ -27,6 +28,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { RegisterUserCommand } from '../application/usecases/register-user.usecase';
 import { LoginUserCommand } from '../application/usecases/login-user.usecase';
 import { Cookies } from '../guards/decorators/param/extract-cookies-from-request.decorator';
+import { NewRefreshTokenCommand } from '../application/usecases/new-refresh-token.usecase';
 
 @Controller("auth")
 export class AuthController {
@@ -39,7 +41,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post("registration")
-  registration(@Body() body: CreateUserInputDto): Promise<void> {
+  async registration(@Body() body: CreateUserInputDto): Promise<void> {
     return this.commandBus.execute(new RegisterUserCommand(body));
   }
 
@@ -60,13 +62,13 @@ export class AuthController {
 
   @Get("me")
   @UseGuards(JwtAuthGuard)
-  me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
+  async me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
     return this.authQueryRepository.me(user.id);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post("registration-confirmation")
-  registrationConfirmation(
+  async registrationConfirmation(
     @Body() code: RegistrationConformationCodeDto,
   ): Promise<void> {
     return this.usersService.confirmEmail(code.code);
@@ -74,26 +76,36 @@ export class AuthController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post("password-recovery")
-  passwordRecovery(@Body() email: EmailDto): Promise<void> {
+  async passwordRecovery(@Body() email: EmailDto): Promise<void> {
     return this.usersService.emailRecovery(email.email);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post("new-password")
-  newPassword(@Body() passInfo: NewPasswordDto): Promise<void> {
+  async newPassword(@Body() passInfo: NewPasswordDto): Promise<void> {
     return this.usersService.newPassword(passInfo);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post("registration-email-resending")
-  registrationResending(@Body() dto: EmailDto): Promise<void> {
+  async registrationResending(@Body() dto: EmailDto): Promise<void> {
     return this.usersService.emailResending(dto.email);
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtRefreshAuthGuard)
+  @HttpCode(HttpStatus.OK)
   @Post("refresh-token")
-  refreshToken(@Cookies('refreshToken') refreshToken: string): string {
-    console.log(refreshToken);
-    return ''
+  async refreshToken(
+    @Res({ passthrough: true }) response: Response,
+    @Cookies('refreshToken') refreshToken: string,
+  ): Promise<{ accessToken: string }> {
+    const tokens = await this.commandBus.execute(new NewRefreshTokenCommand(refreshToken));
+
+    response.cookie("refreshToken", tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    
+    return { accessToken: tokens.accessToken };
   }
 }

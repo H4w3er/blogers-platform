@@ -24,6 +24,7 @@ import {
 } from '../notifications/send-conformation-email-when-user-registered.event-handler';
 import { LoginUserUseCase } from './application/usecases/login-user.usecase';
 import { NewRefreshTokenUseCase } from './application/usecases/new-refresh-token.usecase';
+import {LogoutUserUseCase} from "./application/usecases/logout-user.usecase";
 
 @Module({
   imports: [
@@ -52,7 +53,8 @@ import { NewRefreshTokenUseCase } from './application/usecases/new-refresh-token
     RegisterUserUseCase,
     SendConfirmationEmailWhenUserRegisteredEventHandler,
     LoginUserUseCase,
-    NewRefreshTokenUseCase
+    NewRefreshTokenUseCase,
+    LogoutUserUseCase
   ],
   exports: [JwtStrategy, UsersExternalService],
 })

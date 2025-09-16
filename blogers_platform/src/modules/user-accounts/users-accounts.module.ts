@@ -11,6 +11,7 @@ import { AuthService } from './application/auth.service';
 import { LocalStrategy } from './guards/local/local.strategy';
 import { CryptoService } from './application/crypto.service';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
+import { JwtRefreshStrategy } from './guards/bearer/jwt-refresh.strategy';
 import { UsersExternalService } from './application/users-external.service';
 import { AuthController } from './api/auth.controller';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -22,6 +23,7 @@ import {
   SendConfirmationEmailWhenUserRegisteredEventHandler
 } from '../notifications/send-conformation-email-when-user-registered.event-handler';
 import { LoginUserUseCase } from './application/usecases/login-user.usecase';
+import { NewRefreshTokenUseCase } from './application/usecases/new-refresh-token.usecase';
 
 @Module({
   imports: [
@@ -43,12 +45,14 @@ import { LoginUserUseCase } from './application/usecases/login-user.usecase';
     LocalStrategy,
     CryptoService,
     JwtStrategy,
+    JwtRefreshStrategy,
     UsersExternalService,
     CreateUserUseCase,
     UsersFactory,
     RegisterUserUseCase,
     SendConfirmationEmailWhenUserRegisteredEventHandler,
-    LoginUserUseCase
+    LoginUserUseCase,
+    NewRefreshTokenUseCase
   ],
   exports: [JwtStrategy, UsersExternalService],
 })

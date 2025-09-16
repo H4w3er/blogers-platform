@@ -53,6 +53,9 @@ export class User {
   @Prop({ type: String })
   recoveryCode: string;
 
+  @Prop({ type: Array })
+  refreshTokenBlackList: string[];
+
   get id() {
     // @ts-ignore
     return this._id.toString();
@@ -71,6 +74,7 @@ export class User {
       lastName: "lastName yyy",
     };
     user.deletedAt = null;
+    user.refreshTokenBlackList = []
     return user as UserDocument;
   }
 

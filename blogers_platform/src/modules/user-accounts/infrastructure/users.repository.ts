@@ -47,4 +47,8 @@ export class UsersRepository {
   async findByRecoveryCode(recoveryCode: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({ recoveryCode: recoveryCode });
   }
+
+  async addToBlackList(refreshToken: string, userId: string): Promise<void> {
+    await this.UserModel.updateOne({_id: userId}, {$push: {refreshTokenBlackList: refreshToken}})
+  }
 }

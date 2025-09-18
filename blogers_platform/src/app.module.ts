@@ -8,6 +8,7 @@ import { BlogsPostsCommentsModule } from './modules/blogs-posts-comments/blogs-p
 import { TestingModule } from './modules/testing/testing.module';
 import * as process from 'node:process';
 import { configModule } from './config-dynamic-module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -17,6 +18,14 @@ import { configModule } from './config-dynamic-module';
     UsersAccountsModule,
     BlogsPostsCommentsModule,
     TestingModule,
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 10000,
+          limit: 5,
+        },
+      ],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

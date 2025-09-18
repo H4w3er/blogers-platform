@@ -25,10 +25,15 @@ import {
 import { LoginUserUseCase } from './application/usecases/login-user.usecase';
 import { NewRefreshTokenUseCase } from './application/usecases/new-refresh-token.usecase';
 import {LogoutUserUseCase} from "./application/usecases/logout-user.usecase";
+import { SecurityDevicesController } from './api/security-devices.controller';
+import { Session, SessionSchema } from './domain/session.entity';
+import { SecurityDevicesQueryRepository } from './infrastructure/security-devices.query-repository';
+import { DeleteSessionUseCase } from './application/usecases/delete-session.usecase';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Session.name, schema: SessionSchema }]),
     JwtModule.register({
       secret: 'access-token-secret',
       signOptions: { expiresIn: '5m' },
@@ -36,7 +41,7 @@ import {LogoutUserUseCase} from "./application/usecases/logout-user.usecase";
     NotificationsModule,
     CqrsModule.forRoot()
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, SecurityDevicesController],
   providers: [
     UsersService,
     UsersRepository,
@@ -54,7 +59,9 @@ import {LogoutUserUseCase} from "./application/usecases/logout-user.usecase";
     SendConfirmationEmailWhenUserRegisteredEventHandler,
     LoginUserUseCase,
     NewRefreshTokenUseCase,
-    LogoutUserUseCase
+    LogoutUserUseCase,
+    SecurityDevicesQueryRepository,
+    DeleteSessionUseCase
   ],
   exports: [JwtStrategy, UsersExternalService],
 })

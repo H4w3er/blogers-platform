@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Session, SessionModelType } from '../domain/session.entity';
+import { Session, SessionDocument, SessionModelType } from "../domain/session.entity";
 import { SessionViewDto } from '../api/view-dto/sessions.view-dto';
 import { UserContextDto } from '../guards/dto/user-context.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -23,5 +23,9 @@ export class SecurityDevicesQueryRepository {
 
   async getSessionByUserAndDeviceId(userId: string, deviceId: string){
     return this.sessionModel.findOne({userId: userId, deviceId: deviceId})
+  }
+
+  async save(session: SessionDocument) {
+    await session.save();
   }
 }

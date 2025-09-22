@@ -2,9 +2,9 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { JwtService } from "@nestjs/jwt";
 import { UserContextDto } from "../../guards/dto/user-context.dto";
 import { ExtractCookiesContextDto } from "../../guards/dto/extract-cookies.context.dto";
-import { Session, SessionModelType } from '../../domain/session.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+import { SessionsFactory } from "../factories/sessions.factory";
+import { SecurityDevicesQueryRepository } from "../../infrastructure/security-devices.query-repository";
 
 export class LoginUserCommand {
   constructor(
@@ -17,15 +17,15 @@ export class LoginUserCommand {
 export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
   constructor(
     private jwtService: JwtService,
-    @InjectModel(Session.name)
-    private sessionModel: SessionModelType,
+    private sessionsFactory: SessionsFactory,
+    private securityDevicesQueryRepository: SecurityDevicesQueryRepository,
   ) {}
 
   async execute(dto: LoginUserCommand): Promise<{
     accessToken: string;
     refreshToken: string;
   }> {
-    const deviceId = uuidv4()
+    const deviceId = uuidv4();
 
     const accessToken = this.jwtService.sign(
       { id: dto.userDto.id } as UserContextDto,
@@ -42,13 +42,13 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
       },
     );
 
-    const session = this.sessionModel.createInstance({
+    const session = await this.sessionsFactory.create({
       ip: dto.sessionDto.ip,
       title: dto.sessionDto.title,
       deviceId: deviceId,
       userId: dto.userDto.id,
     });
-    await session.save()
+    await session.save();
 
     return {
       accessToken,
